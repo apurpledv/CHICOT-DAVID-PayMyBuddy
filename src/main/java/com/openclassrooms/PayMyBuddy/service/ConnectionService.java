@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.openclassrooms.PayMyBuddy.model.Connection;
 import com.openclassrooms.PayMyBuddy.repository.ConnectionRepository;
+import com.openclassrooms.PayMyBuddy.util.ConnectionAlreadyExistsException;
 
 @Service
 public class ConnectionService {
@@ -50,7 +51,10 @@ public class ConnectionService {
 	 * @param connection a Connection Entity to add
 	 * @return true if everything went right
 	 */
-	public boolean addConnection(Connection connection) {
+	public boolean addConnection(Connection connection) throws Exception {
+		if (ConnectionRepo.findByUserFromAndTo(connection.getConnectionId().getUserFrom(), connection.getConnectionId().getUserTo()) != null)
+			throw new ConnectionAlreadyExistsException();
+		
 		ConnectionRepo.save(connection);
 		return true;
 	}

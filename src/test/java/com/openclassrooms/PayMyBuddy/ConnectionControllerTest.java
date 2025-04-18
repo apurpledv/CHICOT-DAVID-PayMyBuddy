@@ -25,11 +25,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.openclassrooms.PayMyBuddy.controller.ConnectionController;
 import com.openclassrooms.PayMyBuddy.model.Connection;
 import com.openclassrooms.PayMyBuddy.service.ConnectionService;
+import com.openclassrooms.PayMyBuddy.util.ConnectionAlreadyExistsException;
 import com.openclassrooms.PayMyBuddy.util.PMBUtil;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ConnectControllerTest {
+public class ConnectionControllerTest {
 	@Autowired
 	private MockMvc mockMvc;
 	
@@ -80,10 +81,18 @@ public class ConnectControllerTest {
 	@Test
 	public void testAddConnectionNonValid() throws Exception {
 		String Body = "{\"connectionId\": {\"userFrom\": 3, \"userTo\": 1}, \"dateAdded\": \"2025-04-04 08:00:00\"}";
+
+		// CASE#1 - Couldn't add
+		when(ConnectionService.addConnection(any(Connection.class))).thenReturn(false);
 		
-		// CASE#1 - Generic Exception Thrown
+		this.mockMvc.perform(post("/connection")
+			.contentType(PMBUtil.APPLICATION_JSON_UTF8)
+			.content(Body)
+		).andExpect(status().isInternalServerError());
+		
+		// CASE#2 - ConnectionAlreadyExistsException is thrown
 		when(ConnectionService.addConnection(any(Connection.class))).thenAnswer(invocation -> { 
-			throw new Exception(); 
+			throw new ConnectionAlreadyExistsException(); 
 		});
 		
 		this.mockMvc.perform(post("/connection")
@@ -91,8 +100,10 @@ public class ConnectControllerTest {
 			.content(Body)
 		).andExpect(status().isInternalServerError());
 		
-		// CASE#2 - Couldn't add
-		when(ConnectionService.addConnection(any(Connection.class))).thenReturn(false);
+		// CASE#3 - Generic Exception Thrown
+		when(ConnectionService.addConnection(any(Connection.class))).thenAnswer(invocation -> { 
+			throw new Exception(); 
+		});
 		
 		this.mockMvc.perform(post("/connection")
 			.contentType(PMBUtil.APPLICATION_JSON_UTF8)

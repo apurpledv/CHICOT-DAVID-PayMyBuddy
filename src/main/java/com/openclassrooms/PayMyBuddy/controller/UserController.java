@@ -68,7 +68,7 @@ public class UserController {
 			log.info("[POST] /user - " + Response.getStatusCode());
 		} catch (Exception e) {
 			Response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-			log.info("[POST] /user - " + Response.getStatusCode() + " (" + e + ")");
+			log.error("[POST] /user - " + Response.getStatusCode() + " (" + e + ")");
 		}
 		
 		return Response;
@@ -91,7 +91,7 @@ public class UserController {
 			log.info("[PUT] /user - " + Response.getStatusCode());
 		} catch (Exception e) {
 			Response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-			log.info("[PUT] /user - " + Response.getStatusCode() + " (" + e + ")");
+			log.error("[PUT] /user - " + Response.getStatusCode() + " (" + e + ")");
 		}
 		
 		return Response;
@@ -114,7 +114,7 @@ public class UserController {
 			log.info("[DELETE] /user - " + Response.getStatusCode());
 		} catch (Exception e) {
 			Response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-			log.info("[DELETE] /user - " + Response.getStatusCode() + " (" + e + ")");
+			log.error("[DELETE] /user - " + Response.getStatusCode() + " (" + e + ")");
 		}
 		
 		return Response;

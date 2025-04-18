@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.openclassrooms.PayMyBuddy.model.Connection;
 import com.openclassrooms.PayMyBuddy.service.ConnectionService;
+import com.openclassrooms.PayMyBuddy.util.ConnectionAlreadyExistsException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -61,9 +62,12 @@ public class ConnectionController {
 				throw new Exception("Could not add Connection");
 				
 			log.info("[POST] /connection - " + Response.getStatusCode());
+		} catch (ConnectionAlreadyExistsException e) {
+			Response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			log.error("[POST] /connection - " + Response.getStatusCode() + " (" + e + ")");
 		} catch (Exception e) {
 			Response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-			log.info("[POST] /connection - " + Response.getStatusCode() + " (" + e + ")");
+			log.error("[POST] /connection - " + Response.getStatusCode() + " (" + e + ")");
 		}
 		
 		return Response;
@@ -86,7 +90,7 @@ public class ConnectionController {
 			log.info("[PUT] /connection - " + Response.getStatusCode());
 		} catch (Exception e) {
 			Response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-			log.info("[PUT] /connection - " + Response.getStatusCode() + " (" + e + ")");
+			log.error("[PUT] /connection - " + Response.getStatusCode() + " (" + e + ")");
 		}
 		
 		return Response;
@@ -110,7 +114,7 @@ public class ConnectionController {
 			log.info("[DELETE] /connection - " + Response.getStatusCode());
 		} catch (Exception e) {
 			Response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-			log.info("[DELETE] /connection - " + Response.getStatusCode() + " (" + e + ")");
+			log.error("[DELETE] /connection - " + Response.getStatusCode() + " (" + e + ")");
 		}
 		
 		return Response;

@@ -20,6 +20,7 @@ import com.openclassrooms.PayMyBuddy.model.Connection;
 import com.openclassrooms.PayMyBuddy.model.ConnectionId;
 import com.openclassrooms.PayMyBuddy.repository.ConnectionRepository;
 import com.openclassrooms.PayMyBuddy.service.ConnectionService;
+import com.openclassrooms.PayMyBuddy.util.ConnectionAlreadyExistsException;
 
 @SpringBootTest
 public class ConnectionServiceTest {
@@ -44,7 +45,7 @@ public class ConnectionServiceTest {
 	}
 	
 	@Test
-	public void testGetConnections() {
+	public void testGetAllConnections() {
 		List<Connection> ConnectionsList = Service.getConnections();
 		
 		assertFalse(ConnectionsList.isEmpty());
@@ -55,7 +56,25 @@ public class ConnectionServiceTest {
 	}
 	
 	@Test
-	public void testAddConnection() {
+	public void testGetConnectionsByUserFrom() {
+		when(ConnectionRepo.findByUserFrom(any(int.class))).thenReturn(new ArrayList<Connection>());
+		assertTrue(Service.getConnectionsByUserFrom(1) instanceof List);
+	}
+	
+	@Test
+	public void testGetConnectionsByUserTo() {
+		when(ConnectionRepo.findByUserTo(any(int.class))).thenReturn(new ArrayList<Connection>());
+		assertTrue(Service.getConnectionsByUserTo(1) instanceof List);
+	}
+	
+	@Test
+	public void testGetConnectionsByUserFromAndTo() {
+		when(ConnectionRepo.findByUserFromAndTo(any(int.class), any(int.class))).thenReturn(new Connection());
+		assertTrue(Service.getConnectionBetweenUsers(1, 2) instanceof Connection);
+	}
+	
+	@Test
+	public void testAddConnection() throws Exception {
 		Connection DummyConnection2 = new Connection();
 		ConnectionId DummyConnection2Id = new ConnectionId();
 		DummyConnection2Id.setUserFrom(3);
@@ -69,21 +88,22 @@ public class ConnectionServiceTest {
 	
 	@Test
 	public void testAddConnectionNonValid() {
-		// CASE#1 - Connection already exists (UserFrom/UserTo combo already exists (ie: if 3-2 exists, 2-3 is still possible)
-		
 		Connection DummyConnection2 = new Connection();
 		ConnectionId DummyConnection2Id = new ConnectionId();
-		DummyConnection2Id.setUserFrom(3);
-		DummyConnection2Id.setUserTo(2);
+		DummyConnection2Id.setUserFrom(1);
+		DummyConnection2Id.setUserTo(3);
 		DummyConnection2.setConnectionId(DummyConnection2Id);
-		DummyConnection2.setDateAdded("1999-04-04 08:00:00");
 		
+		// CASE#1 - Generic Exception
 		when(ConnectionRepo.save(any(Connection.class))).thenAnswer(invocation -> { 
 			throw new Exception(); 
 		});
 		
-		// Adding the 'Duplicate' Connection
 		assertThrows(Exception.class, () -> Service.addConnection(DummyConnection2));
+		
+		// CASE#2 - Connection already exists (UserFrom/UserTo combo already exists (ie: if 3-2 exists, 2-3 is still possible)
+		when(ConnectionRepo.findByUserFromAndTo(any(int.class), any(int.class))).thenReturn(new Connection());
+		assertThrows(ConnectionAlreadyExistsException.class, () -> Service.addConnection(DummyConnection2));
 	}
 	
 	@Test

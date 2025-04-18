@@ -51,6 +51,12 @@ public class UserServiceTest {
 	}
 	
 	@Test
+	public void testGetUserByUsername() {
+		when(UserRepo.findByUser(any(String.class))).thenReturn(new User());
+		assertTrue(Service.getUserByUsername("Dummy") instanceof User);
+	}
+	
+	@Test
 	public void testAddUser() {
 		User DummyUser2 = new User();
 		DummyUser2.setUser("dummyUser");
