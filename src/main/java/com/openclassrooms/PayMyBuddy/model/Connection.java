@@ -11,8 +11,8 @@ import lombok.Data;
 @Table(name = "t_connection")
 public class Connection {
 	@EmbeddedId
-	ConnectionIdentifier ConnectionId;
+	ConnectionId connectionId;
  
     @Column(name = "date_added")
-    private String DateAdded;
+    private String dateAdded;
 }

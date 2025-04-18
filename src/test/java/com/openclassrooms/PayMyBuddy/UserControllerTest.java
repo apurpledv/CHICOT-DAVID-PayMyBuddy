@@ -150,21 +150,13 @@ public class UserControllerTest {
 	
 	@Test
 	public void testDeleteUserNonValid() throws Exception {
-		// CASE#1 - Generic Exception Thrown
-		when(UserService.deleteUser(any(String.class))).thenAnswer(invocation -> { 
-			throw new Exception(); 
-		});
-		
-		this.mockMvc.perform(delete("/user?username=any_username"))
-			.andExpect(status().isInternalServerError());
-		
-		// CASE#2 - Couldn't delete
+		// CASE#1 - Couldn't delete
 		when(UserService.deleteUser(any(String.class))).thenReturn(false);
 		
 		this.mockMvc.perform(delete("/user?username=any_username"))
 			.andExpect(status().isInternalServerError());
 		
-		// CASE#3 - Wrong arguments
+		// CASE#2 - Wrong arguments
 		when(UserService.deleteUser(any(String.class))).thenReturn(true);
 		
 		this.mockMvc.perform(delete("/user?username"))
@@ -172,5 +164,13 @@ public class UserControllerTest {
 		
 		this.mockMvc.perform(delete("/user"))
 			.andExpect(status().isBadRequest());
+		
+		// CASE#3 - Generic Exception Thrown
+		when(UserService.deleteUser(any(String.class))).thenAnswer(invocation -> { 
+			throw new Exception(); 
+		});
+		
+		this.mockMvc.perform(delete("/user?username=any_username"))
+			.andExpect(status().isInternalServerError());
 	}
 }

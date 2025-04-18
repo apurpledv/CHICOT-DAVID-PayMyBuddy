@@ -33,8 +33,8 @@ public class UserService {
 	}
 	
 	/**
-	 * <p>Creates a new User entity, or Updates the data for an existing User</p>
-	 * @param user a User Entity to add (if new) or update
+	 * <p>Creates a new User entity</p>
+	 * @param user a User Entity to add
 	 * @return true if everything went right
 	 */
 	public boolean addUser(User user) {
@@ -43,8 +43,8 @@ public class UserService {
 	}
 	
 	/**
-	 * <p>Creates a new User entity, or Updates the data for an existing User</p>
-	 * @param user a User Entity to add (if new) or update
+	 * <p>Updates the data for an existing User</p>
+	 * @param user a User Entity to update
 	 * @return true if everything went right; false if the User doesn't exist
 	 */
 	public boolean updateUser(User newUserData) {
