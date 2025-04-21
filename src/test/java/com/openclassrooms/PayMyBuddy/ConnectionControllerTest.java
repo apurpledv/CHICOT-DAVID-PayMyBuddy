@@ -126,7 +126,7 @@ public class ConnectionControllerTest {
 	}
 	
 	@Test
-	public void testUpdateUserNonValid() throws Exception {
+	public void testUpdateConnectionNonValid() throws Exception {
 		String Body = "{\"connectionId\": {\"userFrom\": 3, \"userTo\": 1}, \"dateAdded\": \"2025-04-04 08:00:00\"}";
 		
 		// CASE#1 - Generic Exception Thrown

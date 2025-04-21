@@ -9,6 +9,9 @@ import com.openclassrooms.PayMyBuddy.model.Connection;
 import com.openclassrooms.PayMyBuddy.repository.ConnectionRepository;
 import com.openclassrooms.PayMyBuddy.util.ConnectionAlreadyExistsException;
 
+/**
+ * <p>ConnectionService is an entity that handles the work with Connections</p>
+ */
 @Service
 public class ConnectionService {
 	@Autowired
@@ -50,6 +53,7 @@ public class ConnectionService {
 	 * <p>Creates a new Connection entity</p>
 	 * @param connection a Connection Entity to add
 	 * @return true if everything went right
+	 * @throws ConnectionAlreadyExistsException if a Connection already exists between two Users (same User->User)
 	 */
 	public boolean addConnection(Connection connection) throws Exception {
 		if (ConnectionRepo.findByUserFromAndTo(connection.getConnectionId().getUserFrom(), connection.getConnectionId().getUserTo()) != null)
@@ -61,28 +65,28 @@ public class ConnectionService {
 	
 	/**
 	 * <p>Updates the data for an existing Connection</p>
-	 * @param newConnectionData a Connection Entity to update
+	 * @param newData a Connection Entity to update
 	 * @return true if everything went right; false if the Connection doesn't exist
 	 */
-	public boolean updateConnection(Connection newConnectionData) {
-		Connection Connection = getConnectionBetweenUsers(
-			newConnectionData.getConnectionId().getUserFrom(),
-			newConnectionData.getConnectionId().getUserTo()
+	public boolean updateConnection(Connection newData) {
+		Connection ExistingConnection = getConnectionBetweenUsers(
+			newData.getConnectionId().getUserFrom(),
+			newData.getConnectionId().getUserTo()
 		);
 		
-		if (Connection == null)
+		if (ExistingConnection == null)
 			return false;
 		
-		Connection.setDateAdded(newConnectionData.getDateAdded());
-		ConnectionRepo.save(Connection);
+		ExistingConnection.setDateAdded(newData.getDateAdded());
+		ConnectionRepo.save(ExistingConnection);
 		return true;
 	}
 	
 	/**
-	 * <p>Deletes an existing connection between two Users</p>
+	 * <p>Deletes an existing Connection between two Users</p>
 	 * @param userFromId the Id of the User the connection stems from
 	 * @param userToId the Id of the User the connection is linked to
-	 * @return
+	 * @return true if everything went right
 	 */
 	public boolean deleteConnection(int userFromId, int userToId) {
 		ConnectionRepo.deleteByUserFromAndTo(userFromId, userToId);
