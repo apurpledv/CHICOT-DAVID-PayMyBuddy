@@ -86,7 +86,7 @@ public class UserController {
 		try {
 			boolean Result = Service.updateUser(user);
 			if (Result == false)
-				throw new Exception("Could not update User");
+				throw new Exception("User not found");
 				
 			log.info("[PUT] /user - " + Response.getStatusCode());
 		} catch (Exception e) {

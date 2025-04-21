@@ -19,6 +19,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import com.openclassrooms.PayMyBuddy.model.User;
 import com.openclassrooms.PayMyBuddy.repository.UserRepository;
 import com.openclassrooms.PayMyBuddy.service.UserService;
+import com.openclassrooms.PayMyBuddy.util.UserAlreadyExistsException;
 
 @SpringBootTest
 public class UserServiceTest {
@@ -57,7 +58,7 @@ public class UserServiceTest {
 	}
 	
 	@Test
-	public void testAddUser() {
+	public void testAddUser() throws Exception {
 		User DummyUser2 = new User();
 		DummyUser2.setUser("dummyUser");
 		DummyUser2.setEmail("dummyUser@gmail.com");
@@ -77,11 +78,11 @@ public class UserServiceTest {
 		DummyUser2.setPassword("dummyUserdummyUser");
 		
 		when(UserRepo.save(any(User.class))).thenAnswer(invocation -> { 
-			throw new Exception(); 
+			throw new UserAlreadyExistsException(); 
 		});
 		
 		// Adding the 'Duplicate' User
-		assertThrows(Exception.class, () -> Service.addUser(DummyUser2));
+		assertThrows(UserAlreadyExistsException.class, () -> Service.addUser(DummyUser2));
 	}
 	
 	@Test
@@ -115,5 +116,22 @@ public class UserServiceTest {
 	public void testDeleteUser() {
 		// Deleting the User
 		assertTrue(Service.deleteUser("any_username"));
+	}
+
+	@Test
+	public void testCreatePassword() {
+		String RawPassword = "RawPassword7412025";
+		String CreatedPassword = Service.createPassword(RawPassword);
+
+		assertFalse(RawPassword.equals(CreatedPassword));
+	}
+
+	@Test
+	public void testVerifyPassword() {
+		String RawPassword = "RawPassword7412025";
+		String CreatedPassword = Service.createPassword(RawPassword);
+
+		assertTrue(Service.verifyPassword(RawPassword, CreatedPassword));
+		assertFalse(Service.verifyPassword("WrongRawPassword", CreatedPassword));
 	}
 }

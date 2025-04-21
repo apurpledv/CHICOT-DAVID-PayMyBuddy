@@ -25,7 +25,7 @@ class UserRepositoryTest {
 		DummyUser.setEmail("testUser@gmail.com");
 		DummyUser.setPassword("testUser99");
 	}
-	
+
 	@Test
 	public void testGetAllUsers() {
 		assertTrue(UserRepo.findAll().size() > 0);

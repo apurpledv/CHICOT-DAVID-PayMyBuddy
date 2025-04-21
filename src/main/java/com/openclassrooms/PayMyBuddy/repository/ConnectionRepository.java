@@ -50,7 +50,7 @@ public interface ConnectionRepository extends CrudRepository<Connection, Integer
 	public Connection findByUserFromAndTo(int userFromId, int userToId);
 	
 	/**
-	 * <p>Deletes an Connection entity linking two User Ids</p>
+	 * <p>Deletes a Connection entity linking two User Ids</p>
 	 * @param userFromId the Id of the User the connection stems from
 	 * @param userToId the Id of the User the connection is linked to
 	 */
