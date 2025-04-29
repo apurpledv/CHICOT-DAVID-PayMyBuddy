@@ -59,7 +59,7 @@ public class ConnectionService {
 		if (ConnectionRepo.findByUserFromAndTo(connection.getConnectionId().getUserFrom(), connection.getConnectionId().getUserTo()) != null)
 			throw new ConnectionAlreadyExistsException();
 		
-		ConnectionRepo.save(connection);
+		ConnectionRepo.addConnection(connection.getConnectionId().getUserFrom(), connection.getConnectionId().getUserTo());
 		return true;
 	}
 	

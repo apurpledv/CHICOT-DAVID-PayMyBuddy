@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>PayMyBuddy - Connexion</title>
+	</head>
+	<body>
+		<section>
+			<form method="POST" action="#" th:action="@{/signin}" th:object="${userForm}">
+                <p>L'adresse mail ou mot de passe est incorrect !</p>
+				<header>
+					<h1>PayMyBuddy</h1>
+				</header>
+				<input aria-label="Fill in your Email Address" type="text" th:field="*{email}" value="" placeholder="Mail">
+				<input aria-label="Fill in your Password" type="text" th:field="*{password}" value="" placeholder="Mot de passe">
+				<button type="submit">Se connecter</button>
+			</form>
+			<p>Pas de compte ? <a href="/signup">Créer un compte</a></p>
+		</section>
+	</body>
+</html>

@@ -1,15 +1,19 @@
 package com.openclassrooms.PayMyBuddy.service;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.stereotype.Service;
 
 import com.google.common.hash.Hashing;
+import com.openclassrooms.PayMyBuddy.model.Connection;
+import com.openclassrooms.PayMyBuddy.model.Mapper;
 import com.openclassrooms.PayMyBuddy.model.User;
+import com.openclassrooms.PayMyBuddy.model.UserDataFromConnectionDTO;
+import com.openclassrooms.PayMyBuddy.repository.ConnectionRepository;
 import com.openclassrooms.PayMyBuddy.repository.UserRepository;
 import com.openclassrooms.PayMyBuddy.util.UserAlreadyExistsException;
 
@@ -20,6 +24,12 @@ import com.openclassrooms.PayMyBuddy.util.UserAlreadyExistsException;
 public class UserService {
 	@Autowired
 	UserRepository UserRepo;
+
+	@Autowired
+	ConnectionRepository ConnectionRepo;
+
+	@Autowired
+	Mapper MapperDTO;
 
 	/*@Autowired
 	private PasswordEncoder passwordEncoder;*/
@@ -38,6 +48,14 @@ public class UserService {
 	 */
 	public User getUserByUsername(String username) {
 		return UserRepo.findByUser(username);
+	}
+
+	/**
+	 * <p>Returns a User entity identified by their Email address</p>
+	 * @return a User entity
+	 */
+	public User getUserByEmail(String email) {
+		return UserRepo.findByEmail(email);
 	}
 	
 	/**
@@ -87,5 +105,20 @@ public class UserService {
 
 	public boolean verifyPassword(String rawPassword, String hashedPassword) {
 		return hashedPassword.equals(createPassword(rawPassword));
+	}
+
+	public List<UserDataFromConnectionDTO> getUsersConnectedToUser(int userFromId) {
+		List<UserDataFromConnectionDTO> DTOList = new ArrayList<UserDataFromConnectionDTO>();
+
+		List<Connection> ConnectionsList = ConnectionRepo.findByUserFrom(userFromId);
+		for (Connection connection : ConnectionsList) {
+			User userConnectedTo = UserRepo.findById(connection.getConnectionId().getUserTo());
+			if (userConnectedTo == null)
+				continue;
+
+			DTOList.add(MapperDTO.toUserDataFromConnectionDTO(userConnectedTo));
+		}
+
+		return DTOList;
 	}
 }

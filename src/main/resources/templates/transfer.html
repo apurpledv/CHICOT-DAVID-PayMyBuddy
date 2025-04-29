@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>PayMyBuddy - Accueil</title>
+	</head>
+	<body>
+        <header>
+            <h1>PayMyBuddy</h1>
+        </header>
+        <aside>
+            <nav>
+                <ul>
+                    <li><a href="/transfer">Transactions</a></li>
+                    <li><a href="#">Profil</a></li>
+                    <li><a href="#">Ajouter une relation</a></li>
+                    <li><a href="/signin">Se déconnecter</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <section>
+            <form method="POST" action="#" th:action="@{/initiateTransaction}" th:object="${transactionForm}">
+                <select th:field="*{receiver}">
+                    <option th:each="connection : ${connectionsList}" th:value="${connection.id}" th:text="${connection.user}"></option>
+                </select>
+                <input type="text" th:field="*{description}" placeholder="Description">
+                <input type="number" th:field="*{amount}" value="0">
+                <button type="submit">Payer</button>
+            </form>
+            <article>
+                <table>
+                    <tr>
+                        <th>Date</th>
+                        <th>Relation</th>
+                        <th>Description</th>
+                        <th>Montant</th>
+                    </tr>
+                    <tr th:each="transactionData : ${transactionsList}">
+                        <td th:text="${transactionData.dateTransaction}"></td>
+                        <td th:text="${transactionData.contactUser}"></td>
+                        <td th:text="${transactionData.description}"></td>
+                        <td th:text="${transactionData.benefic} ? '+' + ${transactionData.amount} : '-' + ${transactionData.amount} + '€'"></td>
+                    </tr>
+                <table>
+            </article>
+        </section>
+	</body>
+</html>

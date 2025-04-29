@@ -1,12 +1,17 @@
 package com.openclassrooms.PayMyBuddy.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.openclassrooms.PayMyBuddy.model.Mapper;
 import com.openclassrooms.PayMyBuddy.model.Transaction;
+import com.openclassrooms.PayMyBuddy.model.TransactionDataDashboardDTO;
+import com.openclassrooms.PayMyBuddy.model.User;
 import com.openclassrooms.PayMyBuddy.repository.TransactionRepository;
+import com.openclassrooms.PayMyBuddy.repository.UserRepository;
 import com.openclassrooms.PayMyBuddy.util.TransactionAlreadyExistsException;
 
 /**
@@ -14,8 +19,14 @@ import com.openclassrooms.PayMyBuddy.util.TransactionAlreadyExistsException;
  */
 @Service
 public class TransactionService {
+	@Autowired
+	UserRepository UserRepo;
+
     @Autowired
 	TransactionRepository TransactionRepo;
+
+	@Autowired
+	Mapper MapperDTO;
 	
 	/**
 	 * <p>Returns a List of Connection entities registered in the App</p>
@@ -72,5 +83,35 @@ public class TransactionService {
 		
 		TransactionRepo.addTransaction(transaction.getSender(), transaction.getReceiver(), transaction.getDescription(), transaction.getAmount());
 		return true;
+	}
+
+	/**
+	 * <p>Returns a List of Transaction entities between two Users</p>
+	 * @return a List of Transaction entities
+	 */
+	public List<TransactionDataDashboardDTO> getAllTransactionsDataOfUser(int userId) {
+		List<TransactionDataDashboardDTO> TransactionsDTOList = new ArrayList<TransactionDataDashboardDTO>();
+
+		// Fill the list with transactions where we're the sender, and those where we're the receiver
+		List<Transaction> TransactionsList = getTransactionsBySender(userId);
+		TransactionsList.addAll(getTransactionsByReceiver(userId));
+
+		// Create DTO
+		for (Transaction transaction : TransactionsList) {
+			// We only pass one User Entity: the 'Contact' (either Sender or Receiver) the transaction is about
+			User ContactObj = UserRepo.findById(transaction.getReceiver());
+
+			// Expresses whether the transaction impacts the User's balance positively or not (ie: Sending = negative, Receiver = positive)
+			boolean Benefic = false;
+
+			if (transaction.getSender() != userId) {
+				ContactObj = UserRepo.findById(transaction.getSender());
+				Benefic = true;
+			}
+			
+			TransactionsDTOList.add(MapperDTO.toTransactionDataDashboardDTO(transaction, ContactObj, Benefic));
+		}
+
+		return TransactionsDTOList;
 	}
 }

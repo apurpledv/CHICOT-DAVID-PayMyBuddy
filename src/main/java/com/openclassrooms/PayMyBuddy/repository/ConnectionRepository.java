@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.openclassrooms.PayMyBuddy.model.Connection;
 
@@ -49,6 +50,16 @@ public interface ConnectionRepository extends CrudRepository<Connection, Integer
 	@Query(value = "SELECT * FROM t_connection WHERE user_from = ?1 AND user_to = ?2", nativeQuery = true)
 	public Connection findByUserFromAndTo(int userFromId, int userToId);
 	
+	/**
+	 * <p>Adds a Connection entity</p>
+	 * @param userFromId id of the initiating User
+	 * @param userToId id of the targeted User
+	 */
+	@Modifying
+	@Transactional
+	@Query(value = "INSERT INTO t_transaction (sender, receiver, date_added) VALUES (?1, ?2, NOW())", nativeQuery = true)
+	public void addConnection(int userFromId, int userToId);
+
 	/**
 	 * <p>Deletes a Connection entity linking two User Ids</p>
 	 * @param userFromId the Id of the User the connection stems from
