@@ -97,7 +97,8 @@ public class TransactionServiceTest {
         assertThrows(TransactionAlreadyExistsException.class, () -> Service.addTransaction(DummyTransaction));
 
 		// CASE#2 - Generic Exception
-		when(TransactionRepo.save(any(Transaction.class))).thenAnswer(invocation -> { 
+		when(TransactionRepo.findBySender(any(int.class))).thenReturn(null);
+		when(TransactionRepo.addTransaction(any(int.class), any(int.class), any(String.class), any(double.class))).thenAnswer(invocation -> { 
 			throw new Exception(); 
 		});
 		

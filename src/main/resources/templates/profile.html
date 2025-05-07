@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>PayMyBuddy - Profil</title>
+        <link th:href="@{/css/styles.css}" rel="stylesheet">
+	</head>
+	<body>
+        <aside th:replace="~{fragments/menus.html}"></aside>
+        <section>
+            <article class="profileFormWrapper">
+                <form class="profileForm" method="POST" action="#" th:action="@{/updateProfile}" th:object="${userUpdateForm}">
+                    <input type="text" th:field="*{user}" th:placeholder="${userCurrentData.user}">
+                    <input type="email" th:field="*{email}" th:placeholder="${userCurrentData.email}">
+                    <input type="password" th:field="*{password}" placeholder="********">
+                    <button type="submit">Modifier</button>
+                </form>
+            </article>
+        </section>
+	</body>
+</html>

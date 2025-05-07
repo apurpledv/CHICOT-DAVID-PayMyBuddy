@@ -54,18 +54,18 @@ class UserRepositoryTest {
 	@Test
 	public void testAddAndDeleteUser() {
 		// Adding the User
-		UserRepo.save(DummyUser);
+		UserRepo.addUser(DummyUser.getUser(), DummyUser.getEmail(), DummyUser.getPassword());
 		assertTrue(UserRepo.findByUser("testUser") != null);
 		
 		// Deleting the User
-		UserRepo.delete(DummyUser);
+		UserRepo.deleteByUser(DummyUser.getUser());
 		assertTrue(UserRepo.findByUser("testUser") == null);
 	}
 	
 	@Test
 	public void testModifyUser() {
 		// Adding the User
-		UserRepo.save(DummyUser);
+		UserRepo.addUser(DummyUser.getUser(), DummyUser.getEmail(), DummyUser.getPassword());
 		
 		// Updating the User
 		DummyUser.setPassword("testUser77777");
@@ -73,7 +73,7 @@ class UserRepositoryTest {
 		assertEquals("testUser77777", UserRepo.findByUser("testUser").getPassword());
 		
 		// Clean Up
-		UserRepo.delete(DummyUser);
+		UserRepo.deleteByUser(DummyUser.getUser());
 		assertTrue(UserRepo.findByUser("testUser") == null);
 	}
 }

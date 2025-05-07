@@ -93,50 +93,19 @@ public class ConnectionServiceTest {
 		DummyConnection2Id.setUserFrom(1);
 		DummyConnection2Id.setUserTo(3);
 		DummyConnection2.setConnectionId(DummyConnection2Id);
+
+		// CASE#1 - Connection already exists (UserFrom/UserTo combo already exists (ie: if 3-2 exists, 2-3 is still possible)
+		when(ConnectionRepo.findByUserFromAndTo(any(int.class), any(int.class))).thenReturn(new Connection());
 		
-		// CASE#1 - Generic Exception
-		when(ConnectionRepo.save(any(Connection.class))).thenAnswer(invocation -> { 
+		assertThrows(ConnectionAlreadyExistsException.class, () -> Service.addConnection(DummyConnection2));
+		
+		// CASE#2 - Generic Exception
+		when(ConnectionRepo.findByUserFromAndTo(any(int.class), any(int.class))).thenReturn(null);
+		when(ConnectionRepo.addConnection(any(int.class), any(int.class))).thenAnswer(invocation -> { 
 			throw new Exception(); 
 		});
 		
 		assertThrows(Exception.class, () -> Service.addConnection(DummyConnection2));
-		
-		// CASE#2 - Connection already exists (UserFrom/UserTo combo already exists (ie: if 3-2 exists, 2-3 is still possible)
-		when(ConnectionRepo.findByUserFromAndTo(any(int.class), any(int.class))).thenReturn(new Connection());
-		assertThrows(ConnectionAlreadyExistsException.class, () -> Service.addConnection(DummyConnection2));
-	}
-	
-	@Test
-	public void testUpdateConnection() {
-		Connection DummyConnection2 = new Connection();
-		ConnectionId DummyConnection2Id = new ConnectionId();
-		DummyConnection2Id.setUserFrom(1);
-		DummyConnection2Id.setUserTo(3);
-		DummyConnection2.setConnectionId(DummyConnection2Id);
-		// Updated Attribute
-		DummyConnection2.setDateAdded("1999-04-04 08:00:00");
-		
-		when(ConnectionRepo.findByUserFromAndTo(any(int.class), any(int.class))).thenReturn(DummyConnection2);
-		
-		// Updating the User
-		assertTrue(Service.updateConnection(DummyConnection2));
-	}
-	
-	@Test
-	public void testUpdateConnectionNonValid() {
-		// CASE#1 - Connection doesn't exist
-		Connection DummyConnectionNonValid = new Connection();
-		ConnectionId DummyConnectionNonValidId = new ConnectionId();
-		DummyConnectionNonValidId.setUserFrom(3);
-		DummyConnectionNonValidId.setUserTo(2);
-		DummyConnectionNonValid.setConnectionId(DummyConnectionNonValidId);
-		// Updated Attribute
-		DummyConnectionNonValid.setDateAdded("1999-04-04 08:00:00");
-		
-		when(ConnectionRepo.findByUserFromAndTo(any(int.class), any(int.class))).thenReturn(null);
-		
-		// Updating the Non-Existant the Connection
-		assertFalse(Service.updateConnection(DummyConnectionNonValid));
 	}
 	
 	@Test

@@ -57,16 +57,16 @@ public interface ConnectionRepository extends CrudRepository<Connection, Integer
 	 */
 	@Modifying
 	@Transactional
-	@Query(value = "INSERT INTO t_transaction (sender, receiver, date_added) VALUES (?1, ?2, NOW())", nativeQuery = true)
-	public void addConnection(int userFromId, int userToId);
+	@Query(value = "INSERT INTO t_connection (user_from, user_to, date_added) VALUES (?1, ?2, NOW())", nativeQuery = true)
+	public int addConnection(int userFromId, int userToId);
 
 	/**
 	 * <p>Deletes a Connection entity linking two User Ids</p>
 	 * @param userFromId the Id of the User the connection stems from
 	 * @param userToId the Id of the User the connection is linked to
 	 */
-	
 	@Modifying
+	@Transactional
 	@Query(value = "DELETE FROM t_connection WHERE user_from = ?1 AND user_to = ?2", nativeQuery = true)
 	public void deleteByUserFromAndTo(int userFromId, int userToId);
 }

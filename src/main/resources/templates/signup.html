@@ -4,19 +4,20 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>PayMyBuddy - Inscription</title>
+        <link th:href="@{/css/styles.css}" rel="stylesheet">
 	</head>
 	<body>
 		<section>
-			<form method="POST" action="#" th:action="@{/signup/save}" th:object="${userForm}">
-				<header>
-					<h1>PayMyBuddy</h1>
-				</header>
-				<input aria-label="Fill in your Username" type="text" th:field="*{user}" value="" placeholder="Username">
-				<input aria-label="Fill in your Email Address" type="text" th:field="*{email}" value="" placeholder="Mail">
-				<input aria-label="Fill in your Password" type="text" th:field="*{password}" value="" placeholder="Mot de passe">
-				<button type="submit">S'inscrire</button>
-			</form>
-			<p>Déjà un compte ? <a href="/signin">Se connecter</a></p>
+			<article class="loginFormWrapper">
+				<img th:src="@{/images/pmb_logo.png}">
+				<form class="loginForm" method="POST" action="#" th:action="@{/signup/save}" th:object="${userRegisterForm}">
+					<input aria-label="Fill in your Username" type="text" th:field="*{user}" th:value="''" placeholder="Username" required>
+					<input aria-label="Fill in your Email Address" type="email" th:field="*{email}" th:value="''" placeholder="Mail" required>
+					<input aria-label="Fill in your Password" type="password" th:field="*{password}" th:value="''" placeholder="Mot de passe" required>
+					<button type="submit">S'inscrire</button>
+				</form>
+				<p>Déjà un compte ? <a href="/signin">Se connecter</a></p>
+			</article>
 		</section>
 	</body>
 </html>

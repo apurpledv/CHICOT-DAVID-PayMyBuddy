@@ -3,46 +3,41 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>PayMyBuddy - Accueil</title>
+		<title>PayMyBuddy - Transactions</title>
+        <link th:href="@{/css/styles.css}" rel="stylesheet">
 	</head>
 	<body>
-        <header>
-            <h1>PayMyBuddy</h1>
-        </header>
-        <aside>
-            <nav>
-                <ul>
-                    <li><a href="/transfer">Transactions</a></li>
-                    <li><a href="#">Profil</a></li>
-                    <li><a href="#">Ajouter une relation</a></li>
-                    <li><a href="/signin">Se déconnecter</a></li>
-                </ul>
-            </nav>
-        </aside>
+        <aside th:replace="~{fragments/menus.html}"></aside>
         <section>
-            <form method="POST" action="#" th:action="@{/initiateTransaction}" th:object="${transactionForm}">
-                <select th:field="*{receiver}">
-                    <option th:each="connection : ${connectionsList}" th:value="${connection.id}" th:text="${connection.user}"></option>
-                </select>
-                <input type="text" th:field="*{description}" placeholder="Description">
-                <input type="number" th:field="*{amount}" value="0">
-                <button type="submit">Payer</button>
-            </form>
-            <article>
+            <article class="transactionsFormWrapper">
+                <p>Effectuer une Transaction</p>
+                <form class="transactionsForm" method="POST" action="#" th:action="@{/initiateTransaction}" th:object="${transactionForm}">
+                    <select th:field="*{receiver}">
+                        <option selected th:value="${-1}" hidden>Sélectionner une relation</option>
+                        <option th:each="connection : ${connectionsList}" th:value="${connection.id}" th:text="${connection.user}"></option>
+                    </select>
+                    <input type="text" th:field="*{description}" placeholder="Description">
+                    <input type="number" th:field="*{amount}" th:value="${5.0}" min="5">
+                    <button type="submit">Payer</button>
+                </form>
+            </article>
+            <article class="transactionsDashboardWrapper">
                 <table>
-                    <tr>
+                    <thead>
                         <th>Date</th>
                         <th>Relation</th>
                         <th>Description</th>
                         <th>Montant</th>
-                    </tr>
-                    <tr th:each="transactionData : ${transactionsList}">
-                        <td th:text="${transactionData.dateTransaction}"></td>
-                        <td th:text="${transactionData.contactUser}"></td>
-                        <td th:text="${transactionData.description}"></td>
-                        <td th:text="${transactionData.benefic} ? '+' + ${transactionData.amount} : '-' + ${transactionData.amount} + '€'"></td>
-                    </tr>
-                <table>
+                    </thead>
+                    <tbody>
+                        <tr th:each="transactionData : ${transactionsList}">
+                            <td th:text="${transactionData.dateTransaction}"></td>
+                            <td th:text="${transactionData.contactUser}"></td>
+                            <td th:text="${transactionData.description}"></td>
+                            <td th:text="${transactionData.benefic} ? '+' + ${transactionData.amount} + '€' : '-' + ${transactionData.amount} + '€'"></td>
+                        </tr>
+                    </tbody>
+                </table>
             </article>
         </section>
 	</body>

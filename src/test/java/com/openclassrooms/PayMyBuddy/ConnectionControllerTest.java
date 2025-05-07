@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -106,43 +105,6 @@ public class ConnectionControllerTest {
 		});
 		
 		this.mockMvc.perform(post("/connection")
-			.contentType(PMBUtil.APPLICATION_JSON_UTF8)
-			.content(Body)
-		).andExpect(status().isInternalServerError());
-	}
-	
-	@Test
-	public void testUpdateConnection() throws Exception {
-		when(ConnectionService.updateConnection(any(Connection.class))).thenReturn(true);
-		
-		String Body = "{\"connectionId\": {\"userFrom\": 3, \"userTo\": 1}, \"dateAdded\": \"2025-04-04 08:00:00\"}";
-		
-		this.mockMvc.perform(put("/connection")
-			.contentType(PMBUtil.APPLICATION_JSON_UTF8)
-			.content(Body)
-		).andExpect(status().isOk());
-
-		verify(ConnectionService, Mockito.times(1)).updateConnection(any(Connection.class));
-	}
-	
-	@Test
-	public void testUpdateConnectionNonValid() throws Exception {
-		String Body = "{\"connectionId\": {\"userFrom\": 3, \"userTo\": 1}, \"dateAdded\": \"2025-04-04 08:00:00\"}";
-		
-		// CASE#1 - Generic Exception Thrown
-		when(ConnectionService.updateConnection(any(Connection.class))).thenAnswer(invocation -> { 
-			throw new Exception(); 
-		});
-		
-		this.mockMvc.perform(put("/connection")
-			.contentType(PMBUtil.APPLICATION_JSON_UTF8)
-			.content(Body)
-		).andExpect(status().isInternalServerError());
-		
-		// CASE#2 - Couldn't update
-		when(ConnectionService.updateConnection(any(Connection.class))).thenReturn(false);
-		
-		this.mockMvc.perform(put("/connection")
 			.contentType(PMBUtil.APPLICATION_JSON_UTF8)
 			.content(Body)
 		).andExpect(status().isInternalServerError());

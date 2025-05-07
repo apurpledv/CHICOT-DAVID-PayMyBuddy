@@ -1,12 +1,18 @@
 package com.openclassrooms.PayMyBuddy.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.openclassrooms.PayMyBuddy.model.Connection;
+import com.openclassrooms.PayMyBuddy.model.ConnectionId;
+import com.openclassrooms.PayMyBuddy.model.Mapper;
+import com.openclassrooms.PayMyBuddy.model.User;
+import com.openclassrooms.PayMyBuddy.model.UserDataFromConnectionDTO;
 import com.openclassrooms.PayMyBuddy.repository.ConnectionRepository;
+import com.openclassrooms.PayMyBuddy.repository.UserRepository;
 import com.openclassrooms.PayMyBuddy.util.ConnectionAlreadyExistsException;
 
 /**
@@ -15,7 +21,13 @@ import com.openclassrooms.PayMyBuddy.util.ConnectionAlreadyExistsException;
 @Service
 public class ConnectionService {
 	@Autowired
+	UserRepository UserRepo;
+
+	@Autowired
 	ConnectionRepository ConnectionRepo;
+
+	@Autowired
+	Mapper MapperDTO;
 	
 	/**
 	 * <p>Returns a List of Connection entities registered in the App</p>
@@ -55,30 +67,11 @@ public class ConnectionService {
 	 * @return true if everything went right
 	 * @throws ConnectionAlreadyExistsException if a Connection already exists between two Users (same User->User)
 	 */
-	public boolean addConnection(Connection connection) throws Exception {
+	public boolean addConnection(Connection connection) {
 		if (ConnectionRepo.findByUserFromAndTo(connection.getConnectionId().getUserFrom(), connection.getConnectionId().getUserTo()) != null)
-			throw new ConnectionAlreadyExistsException();
-		
-		ConnectionRepo.addConnection(connection.getConnectionId().getUserFrom(), connection.getConnectionId().getUserTo());
-		return true;
-	}
-	
-	/**
-	 * <p>Updates the data for an existing Connection</p>
-	 * @param newData a Connection Entity to update
-	 * @return true if everything went right; false if the Connection doesn't exist
-	 */
-	public boolean updateConnection(Connection newData) {
-		Connection ExistingConnection = getConnectionBetweenUsers(
-			newData.getConnectionId().getUserFrom(),
-			newData.getConnectionId().getUserTo()
-		);
-		
-		if (ExistingConnection == null)
 			return false;
-		
-		ExistingConnection.setDateAdded(newData.getDateAdded());
-		ConnectionRepo.save(ExistingConnection);
+
+		ConnectionRepo.addConnection(connection.getConnectionId().getUserFrom(), connection.getConnectionId().getUserTo());
 		return true;
 	}
 	
@@ -91,5 +84,37 @@ public class ConnectionService {
 	public boolean deleteConnection(int userFromId, int userToId) {
 		ConnectionRepo.deleteByUserFromAndTo(userFromId, userToId);
 		return true;
+	}
+
+	public List<UserDataFromConnectionDTO> getUsersConnectedToUser(int userFromId) {
+		List<UserDataFromConnectionDTO> DTOList = new ArrayList<UserDataFromConnectionDTO>();
+
+		List<Connection> ConnectionsList = ConnectionRepo.findByUserFrom(userFromId);
+		for (Connection connection : ConnectionsList) {
+			User userConnectedTo = UserRepo.findById(connection.getConnectionId().getUserTo());
+			if (userConnectedTo == null)
+				continue;
+
+			DTOList.add(MapperDTO.toUserDataFromConnectionDTO(userConnectedTo, connection.getDateAdded()));
+		}
+
+		return DTOList;
+	}
+
+	public Connection createConnectionEntityFromEmail(int userId, String desiredEmail) {
+		User UserFound = UserRepo.findByEmail(desiredEmail);
+		if (UserFound == null)
+			return null;
+
+		if (UserFound.getId() == userId)
+			return null;
+
+		Connection NewConnection = new Connection();
+		ConnectionId Id = new ConnectionId();
+			Id.setUserFrom(userId);
+			Id.setUserTo(UserFound.getId());
+		NewConnection.setConnectionId(Id);
+
+		return NewConnection;
 	}
 }

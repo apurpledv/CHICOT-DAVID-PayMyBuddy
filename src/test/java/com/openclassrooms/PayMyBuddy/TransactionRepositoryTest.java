@@ -55,12 +55,14 @@ public class TransactionRepositoryTest {
 	
 	@Test
 	public void testAddAndDeleteTransaction() {
+		long InitialRepoSize = TransactionRepo.count();
+
 		// Adding
 		TransactionRepo.addTransaction(DummyTransaction.getSender(), DummyTransaction.getReceiver(), DummyTransaction.getDescription(), DummyTransaction.getAmount());
-		assertEquals(3, TransactionRepo.count());
+		assertEquals(InitialRepoSize + 1, TransactionRepo.count());
 		
 		// Deleting (Default Deletion Method)
 		TransactionRepo.deleteByAmount(999999.99);
-		assertEquals(2, TransactionRepo.count());
+		assertEquals(InitialRepoSize, TransactionRepo.count());
 	}
 }

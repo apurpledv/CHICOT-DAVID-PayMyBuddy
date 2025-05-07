@@ -74,14 +74,8 @@ public class TransactionService {
 	 * @return true if everything went right
      * @throws TransactionAlreadyExistsException if a Transaction already exists (same Sender, Receiver, Amount and Date)
 	 */
-	public boolean addTransaction(Transaction transaction) throws Exception {
-        List<Transaction> TransactionsList = TransactionRepo.findBySender(transaction.getSender());
-        for (Transaction existingTransaction : TransactionsList) {
-            if (existingTransaction.equals(transaction))
-                throw new TransactionAlreadyExistsException();
-        }
-		
-		TransactionRepo.addTransaction(transaction.getSender(), transaction.getReceiver(), transaction.getDescription(), transaction.getAmount());
+	public boolean addTransaction(Transaction transaction) {
+        TransactionRepo.addTransaction(transaction.getSender(), transaction.getReceiver(), transaction.getDescription(), transaction.getAmount());
 		return true;
 	}
 

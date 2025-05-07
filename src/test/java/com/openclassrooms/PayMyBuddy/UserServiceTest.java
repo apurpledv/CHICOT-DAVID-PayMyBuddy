@@ -77,7 +77,7 @@ public class UserServiceTest {
 		DummyUser2.setEmail("dummyUser@gmail.com");
 		DummyUser2.setPassword("dummyUserdummyUser");
 		
-		when(UserRepo.save(any(User.class))).thenAnswer(invocation -> { 
+		when(UserRepo.addUser(any(String.class), any(String.class), any(String.class))).thenAnswer(invocation -> { 
 			throw new UserAlreadyExistsException(); 
 		});
 		

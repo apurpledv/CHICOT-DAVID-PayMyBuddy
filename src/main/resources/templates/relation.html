@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>PayMyBuddy - Relations</title>
+        <link th:href="@{/css/styles.css}" rel="stylesheet">
+	</head>
+	<body>
+        <aside th:replace="~{fragments/menus.html}"></aside>
+        <section>
+            <article class="relationFormWrapper">
+                <p>Chercher une relation</p>
+                <form class="relationForm" method="POST" action="#" th:action="@{/createRelation}" th:object="${connectionForm}">
+                    <input type="text" th:field="*{email}" placeholder="Saisir une adresse mail">
+                    <button type="submit">Ajouter</button>
+                </form>
+            </article>
+            <article class="relationDashboardWrapper">
+                <table>
+                    <thead>
+                        <th>Contact</th>
+                        <th>En relation depuis le :</th>
+                    </thead>
+                    <tbody>
+                        <tr th:each="connectionData : ${connectionsList}">
+                            <td th:text="${connectionData.user}"></td>
+                            <td th:text="${connectionData.dateConnection}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </article>
+        </section>
+	</body>
+</html>

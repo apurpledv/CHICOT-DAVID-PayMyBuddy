@@ -1,21 +1,16 @@
 package com.openclassrooms.PayMyBuddy.service;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Service;
 
 import com.google.common.hash.Hashing;
-import com.openclassrooms.PayMyBuddy.model.Connection;
 import com.openclassrooms.PayMyBuddy.model.Mapper;
 import com.openclassrooms.PayMyBuddy.model.User;
-import com.openclassrooms.PayMyBuddy.model.UserDataFromConnectionDTO;
 import com.openclassrooms.PayMyBuddy.repository.ConnectionRepository;
 import com.openclassrooms.PayMyBuddy.repository.UserRepository;
-import com.openclassrooms.PayMyBuddy.util.UserAlreadyExistsException;
 
 /**
  * <p>UserService is an entity that handles the work with Users</p>
@@ -41,6 +36,14 @@ public class UserService {
 	public List<User> getUsers() {
 		return UserRepo.findAll();
 	}
+
+	/**
+	 * <p>Returns a User entity identified by their Id</p>
+	 * @return a User entity
+	 */
+	public User getUserById(int userId) {
+		return UserRepo.findById(userId);
+	}
 	
 	/**
 	 * <p>Returns a User entity identified by their Username</p>
@@ -63,17 +66,14 @@ public class UserService {
 	 * @param user a User Entity to add
 	 * @return true if everything went right
 	 */
-	public boolean addUser(User user) throws Exception {
+	public boolean addUser(User user) {
 		if (user.getId() != 0)
 			return false;
-		
-		if (UserRepo.findByUser(user.getUser()) != null || UserRepo.findByEmail(user.getEmail()) != null)
-			throw new UserAlreadyExistsException();
 
 		// Hashing the sensible data (password)
 		user.setPassword(createPassword(user.getPassword()));
 
-		UserRepo.save(user);
+		UserRepo.addUser(user.getUser(), user.getEmail(), user.getPassword());
 		return true;
 	}
 	
@@ -83,13 +83,20 @@ public class UserService {
 	 * @return true if everything went right; false if the User doesn't exist
 	 */
 	public boolean updateUser(User newUserData) {
-		User User = UserRepo.findByUserOrEmail(newUserData.getUser(), newUserData.getEmail());
+		User User = UserRepo.findById(newUserData.getId());
+
 		if (User == null)
 			return false;
 		
-		User.setUser(newUserData.getUser());
-		User.setEmail(newUserData.getEmail());
-		User.setPassword(createPassword(newUserData.getPassword()));
+		if (newUserData.getUser() != null && !newUserData.getUser().isEmpty())
+			User.setUser(newUserData.getUser());
+		
+		if (newUserData.getEmail() != null && !newUserData.getEmail().isEmpty())
+			User.setEmail(newUserData.getEmail());
+		
+		if (newUserData.getPassword() != null && !newUserData.getPassword().isEmpty())
+			User.setPassword(createPassword(newUserData.getPassword()));
+
 		UserRepo.save(User);
 		return true;
 	}
@@ -107,18 +114,11 @@ public class UserService {
 		return hashedPassword.equals(createPassword(rawPassword));
 	}
 
-	public List<UserDataFromConnectionDTO> getUsersConnectedToUser(int userFromId) {
-		List<UserDataFromConnectionDTO> DTOList = new ArrayList<UserDataFromConnectionDTO>();
+	public boolean verifyUser(String email, String password) {
+		User UserToVerify = getUserByEmail(email);
+		if (UserToVerify == null)
+			return false;
 
-		List<Connection> ConnectionsList = ConnectionRepo.findByUserFrom(userFromId);
-		for (Connection connection : ConnectionsList) {
-			User userConnectedTo = UserRepo.findById(connection.getConnectionId().getUserTo());
-			if (userConnectedTo == null)
-				continue;
-
-			DTOList.add(MapperDTO.toUserDataFromConnectionDTO(userConnectedTo));
-		}
-
-		return DTOList;
+		return verifyPassword(password, UserToVerify.getPassword());
 	}
 }

@@ -6,17 +6,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.openclassrooms.PayMyBuddy.model.Transaction;
 import com.openclassrooms.PayMyBuddy.model.TransactionDataDashboardDTO;
+import com.openclassrooms.PayMyBuddy.model.UserDataFromConnectionDTO;
+import com.openclassrooms.PayMyBuddy.service.ConnectionService;
 import com.openclassrooms.PayMyBuddy.service.TransactionService;
 import com.openclassrooms.PayMyBuddy.util.TransactionAlreadyExistsException;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -26,7 +29,10 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 public class TransactionController {
     @Autowired
-	TransactionService Service;
+	ConnectionService ConnectionService;
+
+    @Autowired
+	TransactionService TransactionService;
 
     /**
 	 * <p>Returns a List of every Transaction Entity registered</p>
@@ -37,7 +43,7 @@ public class TransactionController {
 		ResponseEntity<List<Transaction>> Response = null;
 		
 		try {
-			Response = new ResponseEntity<>(Service.getTransactions(), HttpStatus.OK);
+			Response = new ResponseEntity<>(TransactionService.getTransactions(), HttpStatus.OK);
 			log.info("[GET] /transaction - " + Response.getStatusCode());
 		} catch (Exception e) {
 			Response = new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -57,7 +63,7 @@ public class TransactionController {
 		ResponseEntity<HttpStatus> Response = new ResponseEntity<>(HttpStatus.OK);
 		
 		try {
-			boolean Result = Service.addTransaction(transaction);
+			boolean Result = TransactionService.addTransaction(transaction);
 			if (Result == false)
 				throw new Exception("Could not add Transaction");
 				
@@ -79,7 +85,7 @@ public class TransactionController {
 	 * @param password the unhashed password of the user
 	 * @return an HTTP Response with Code 200 containing a List of every User Entity registered; an empty HTTP Response with Code 500 if a problem occurred
 	 */
-	@GetMapping("/transaction/summary")
+	/*@GetMapping("/transaction/summary")
 	public ResponseEntity<List<TransactionDataDashboardDTO>> getTransactionsLinkedToUser(@Validated @RequestParam int userId) {
 		ResponseEntity<List<TransactionDataDashboardDTO>> Response = null;
 		
@@ -92,5 +98,39 @@ public class TransactionController {
 		}
 		
 		return Response;
+	}*/
+
+	@GetMapping("/transfer")
+	public String transactionView(HttpSession session, Model model) {
+		if (session.getAttribute("userId") == null)
+			return "redirect:/signin";
+
+		int sessionUserId = (int) session.getAttribute("userId");
+		
+		Transaction transactionForm = new Transaction();
+		List<TransactionDataDashboardDTO> transactionsList = TransactionService.getAllTransactionsDataOfUser(sessionUserId);
+		List<UserDataFromConnectionDTO> connectionsList = ConnectionService.getUsersConnectedToUser(sessionUserId);
+
+		model.addAttribute("transactionForm", transactionForm);
+		model.addAttribute("transactionsList", transactionsList);
+		model.addAttribute("connectionsList", connectionsList);
+
+		return "transfer";
+	}
+
+	@PostMapping("/initiateTransaction")
+	public String transactionProcessView(HttpSession session, @ModelAttribute("transactionForm") Transaction transaction, Model model) {
+		if (session.getAttribute("userId") == null)
+			return "redirect:/signin";
+
+		int sessionUserId = (int) session.getAttribute("userId");
+		
+		if (transaction.getReceiver() == -1)
+			return "redirect:/transfer";
+			
+		transaction.setSender(sessionUserId);
+		TransactionService.addTransaction(transaction);
+
+		return "redirect:/transfer";
 	}
 }

@@ -4,15 +4,16 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>PayMyBuddy - Thank you for registering</title>
+        <link th:href="@{/css/styles.css}" rel="stylesheet">
 	</head>
 	<body>
 		<section>
-            <header>
-                <h1>PayMyBuddy</h1>
-            </header>
-            <article>
-                <p>Merci de vous être inscrit !</p>
-                <a href="/signin">Vous connecter</a>
+            <article class="loginFormWrapper">
+				<img th:src="@{/images/pmb_logo.png}">
+				<form class="loginForm" method="GET" action="#" th:action="@{/signin}">
+					<p>Merci de vous être inscrit !</p>
+					<button type="submit">Vous connecter</button>
+				</form>
             </article>
 		</section>
 	</body>

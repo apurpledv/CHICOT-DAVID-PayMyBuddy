@@ -1,0 +1,300 @@
+* {
+    margin: 0px;
+    padding: 0px;
+    font-size: 100%;
+    box-sizing: border-box;
+    font-family: "Arial";
+}
+
+nav {
+    position: relative;
+    float: left;
+    border-right: 1px solid black;
+    height: 100dvh;
+}
+
+nav img {
+    width: 100%;
+}
+
+nav ul {
+    margin-top: 10px;
+    width: 15dvw;
+    display: flex;
+    flex-direction: column;
+    font-size: 1.4rem;
+    list-style: none;
+}
+
+nav ul li a {
+    padding: 15px;
+    width: 100%;
+    display: block;
+    text-decoration: none;
+    color: black;
+}
+
+nav ul li a:hover {
+    background-color: aliceblue;
+    border-right: 4px solid lightskyblue;
+}
+
+section {
+    margin: auto;
+    padding: 20px;
+    padding-top: 70px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+section article {
+    padding: 10px;
+    width: 75%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.transactionsFormWrapper { 
+    width: 70%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    border: 1px solid lightgrey;
+    border-radius: 15px;
+}
+
+.transactionsFormWrapper p { 
+    padding: 10px;
+    width: 100%;
+    font-size: 1.3rem;
+}
+
+form {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.transactionsForm { 
+    padding: 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 1.2rem;
+}
+
+.transactionsForm input { 
+    padding: 10px;
+}
+
+select {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.transactionsForm input[type="text"] { 
+    width: 50%;
+}
+
+.transactionsForm button { 
+    width: 20%;
+}
+
+.transactionsDashboardWrapper {
+    width: 90%;
+    display: flex;
+    border-radius: 10px;
+    border: 1px solid lightgrey;
+}
+
+.transactionsDashboardWrapper table {
+    width: 100%;
+    font-size: 1.2rem;
+    border-collapse: collapse;
+}
+
+.transactionsDashboardWrapper tr {
+    height: 70px;
+}
+
+.transactionsDashboardWrapper td, .transactionsDashboardWrapper th {
+    padding: 0px 10px 0px 10px;
+}
+
+.transactionsDashboardWrapper table tbody tr {
+    border-top: 1px solid lightgrey;
+}
+
+.transactionsDashboardWrapper th:nth-child(1) {
+    text-align: left;
+}
+
+.transactionsDashboardWrapper td:nth-child(1) {
+    width: 20%;
+    font-weight: bold;
+}
+
+.transactionsDashboardWrapper th:nth-child(2) {
+    width: 25%;
+    text-align: left;
+}
+
+.transactionsDashboardWrapper th:nth-child(3) {
+    text-align: left;
+}
+
+.transactionsDashboardWrapper th:nth-child(4) {
+    text-align: right;
+}
+
+.transactionsDashboardWrapper td:nth-child(4) {
+    width: 15%;
+    text-align: right;
+}
+
+
+
+
+.relationFormWrapper {
+    margin: 20px auto;
+    width: 40%;
+    border: 1px solid lightgrey;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 1.2rem;
+}
+
+.relationForm {
+    padding: 10px;
+    gap: 20px;
+}
+
+.relationForm input {
+    width: 100%;
+    padding: 5px;
+}
+
+.relationForm button {
+    padding: 5px;
+    width: 20%;
+}
+
+.relationDashboardWrapper {
+    width: 60%;
+    display: flex;
+    border-radius: 10px;
+    border: 1px solid lightgrey;
+}
+
+.relationDashboardWrapper table {
+    width: 100%;
+    font-size: 1.2rem;
+    border-collapse: collapse;
+}
+
+.relationDashboardWrapper tr {
+    height: 70px;
+}
+
+.relationDashboardWrapper td, .relationDashboardWrapper th {
+    padding: 0px 10px 0px 10px;
+}
+
+.relationDashboardWrapper table tbody tr {
+    border-top: 1px solid lightgrey;
+}
+
+.relationDashboardWrapper th:nth-child(1) {
+    text-align: left;
+}
+
+.relationDashboardWrapper td:nth-child(1) {
+    width: 40%;
+}
+
+.relationDashboardWrapper th:nth-child(2) {
+    width: 25%;
+    text-align: right;
+}
+
+.relationDashboardWrapper td:nth-child(2) {
+    width: 25%;
+    text-align: right;
+}
+
+
+
+
+.profileFormWrapper {
+    margin: 20px auto;
+    width: 30%;
+    border: 1px solid lightgrey;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 1.2rem;
+}
+
+.profileForm {
+    padding: 10px;
+    gap: 20px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.profileForm input {
+    width: 100%;
+    padding: 5px;
+}
+
+.profileForm button {
+    padding: 5px;
+    width: 50%;
+}
+
+
+
+
+
+.loginFormWrapper {
+    margin-top: 50px;
+    width: 30%;
+    border: 1px solid lightgrey;
+    font-size: 1.2rem;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.loginForm {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.loginForm > p {
+    width: 100%;
+    text-align: center;
+}
+
+.loginForm img {
+    width: 40%;
+}
+
+.loginForm input {
+    padding: 5px;
+    width: 70%;
+}
+
+.loginForm button {
+    padding: 5px;
+    width: 40%;
+}

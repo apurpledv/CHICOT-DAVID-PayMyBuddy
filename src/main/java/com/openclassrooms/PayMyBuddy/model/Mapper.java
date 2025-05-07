@@ -4,8 +4,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Mapper {
-    public UserDataFromConnectionDTO toUserDataFromConnectionDTO(User user) {
-        return new UserDataFromConnectionDTO(user.getId(), user.getUser());
+    public UserDataFromConnectionDTO toUserDataFromConnectionDTO(User user, String dateConnection) {
+        return new UserDataFromConnectionDTO(user.getId(), user.getUser(), dateConnection);
     }
 
     public TransactionDataDashboardDTO toTransactionDataDashboardDTO(Transaction transactionObj, User contactObj, boolean benefic) {

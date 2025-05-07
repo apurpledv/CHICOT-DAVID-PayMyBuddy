@@ -41,6 +41,15 @@ public interface TransactionRepository extends CrudRepository<Transaction, Integ
 	 * @param receiverId the Id of the User the transaction is directed to
 	 * @return a unique Transaction entity between two Users
 	 */
+	@Query(value = "SELECT t_transaction.id_transaction, t_transaction.description, t_transaction.amount, t_transaction.date_transaction FROM t_transaction INNER JOIN t_user ON t_user.id_user = t_transaction.sender OR t_user.id_user = t_transaction.receiver WHERE t_user.id_user = ?1", nativeQuery = true)
+	public List<Transaction> findAllTransactionsOfUser(int userId);
+
+	/**
+	 * <p>Returns a List of every Transaction entity between two Users</p>
+	 * @param senderId the Id of the User the transaction stems from
+	 * @param receiverId the Id of the User the transaction is directed to
+	 * @return a unique Transaction entity between two Users
+	 */
 	@Query(value = "SELECT * FROM t_transaction WHERE sender = ?1 AND receiver = ?2", nativeQuery = true)
 	public List<Transaction> findBySenderAndReceiver(int senderId, int receiverId);
 
@@ -64,7 +73,7 @@ public interface TransactionRepository extends CrudRepository<Transaction, Integ
 	@Modifying
 	@Transactional
 	@Query(value = "INSERT INTO t_transaction (sender, receiver, description, amount, date_transaction) VALUES (?1, ?2, ?3, ?4, NOW())", nativeQuery = true)
-	public void addTransaction(int senderId, int receiverId, String description, double amount);
+	public int addTransaction(int senderId, int receiverId, String description, double amount);
 
 	/**
 	 * <p>Deletes a Transaction entity</p>
