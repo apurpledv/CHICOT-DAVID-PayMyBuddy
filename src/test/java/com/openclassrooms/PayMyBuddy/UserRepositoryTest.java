@@ -66,10 +66,12 @@ class UserRepositoryTest {
 	public void testModifyUser() {
 		// Adding the User
 		UserRepo.addUser(DummyUser.getUser(), DummyUser.getEmail(), DummyUser.getPassword());
+
+		int DummyUserId = UserRepo.findByUser("testUser").getId();
 		
 		// Updating the User
 		DummyUser.setPassword("testUser77777");
-		UserRepo.save(DummyUser);
+		UserRepo.updateUser(DummyUser.getUser(), DummyUser.getEmail(), DummyUser.getPassword(), DummyUserId);
 		assertEquals("testUser77777", UserRepo.findByUser("testUser").getPassword());
 		
 		// Clean Up

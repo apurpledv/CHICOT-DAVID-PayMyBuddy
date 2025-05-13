@@ -13,7 +13,6 @@ import com.openclassrooms.PayMyBuddy.model.User;
 import com.openclassrooms.PayMyBuddy.model.UserDataFromConnectionDTO;
 import com.openclassrooms.PayMyBuddy.repository.ConnectionRepository;
 import com.openclassrooms.PayMyBuddy.repository.UserRepository;
-import com.openclassrooms.PayMyBuddy.util.ConnectionAlreadyExistsException;
 
 /**
  * <p>ConnectionService is an entity that handles the work with Connections</p>
@@ -68,9 +67,6 @@ public class ConnectionService {
 	 * @throws ConnectionAlreadyExistsException if a Connection already exists between two Users (same User->User)
 	 */
 	public boolean addConnection(Connection connection) {
-		if (ConnectionRepo.findByUserFromAndTo(connection.getConnectionId().getUserFrom(), connection.getConnectionId().getUserTo()) != null)
-			return false;
-
 		ConnectionRepo.addConnection(connection.getConnectionId().getUserFrom(), connection.getConnectionId().getUserTo());
 		return true;
 	}
@@ -86,12 +82,17 @@ public class ConnectionService {
 		return true;
 	}
 
+	/**
+	 * <p>Retrieves a list of User Data from all Users this User is connected to (User -> Other Users)</p>
+	 * @param userFromId the Id of the User to look for connections with
+	 * @return a List of DTOs containing: [id, username, date_of_connection]
+	 */
 	public List<UserDataFromConnectionDTO> getUsersConnectedToUser(int userFromId) {
 		List<UserDataFromConnectionDTO> DTOList = new ArrayList<UserDataFromConnectionDTO>();
 
 		List<Connection> ConnectionsList = ConnectionRepo.findByUserFrom(userFromId);
 		for (Connection connection : ConnectionsList) {
-			User userConnectedTo = UserRepo.findById(connection.getConnectionId().getUserTo());
+			User userConnectedTo = UserRepo.getById(connection.getConnectionId().getUserTo());
 			if (userConnectedTo == null)
 				continue;
 
@@ -101,6 +102,12 @@ public class ConnectionService {
 		return DTOList;
 	}
 
+	/**
+	 * <p>Creates a Connection Entity using one User's Id and another's email</p>
+	 * @param userId the first User's Id
+	 * @param desiredEmail the second User's email address
+	 * @return a Connection Entity if everything is right; null if the second User doesn't exist or both Users are the same (same email and Id)
+	 */
 	public Connection createConnectionEntityFromEmail(int userId, String desiredEmail) {
 		User UserFound = UserRepo.findByEmail(desiredEmail);
 		if (UserFound == null)

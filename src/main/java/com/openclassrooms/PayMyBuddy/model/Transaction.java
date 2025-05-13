@@ -31,15 +31,4 @@ public class Transaction {
 
     @Column(name = "date_transaction")
     private String dateTransaction;
-
-    public int hashCode() {
-        return 2;
-    }
-
-    public boolean equals(Transaction transaction) {
-        if (this.sender == transaction.sender && this.receiver == transaction.receiver && this.amount == transaction.amount && this.dateTransaction == transaction.dateTransaction)
-            return true;
-        else
-            return false;
-    }
 }

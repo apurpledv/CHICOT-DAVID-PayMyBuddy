@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -17,15 +18,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.openclassrooms.PayMyBuddy.model.Transaction;
+import com.openclassrooms.PayMyBuddy.model.User;
 import com.openclassrooms.PayMyBuddy.repository.TransactionRepository;
+import com.openclassrooms.PayMyBuddy.repository.UserRepository;
 import com.openclassrooms.PayMyBuddy.service.TransactionService;
-import com.openclassrooms.PayMyBuddy.util.TransactionAlreadyExistsException;
 
 @SpringBootTest
 public class TransactionServiceTest {
     @Autowired
 	TransactionService Service;
 	
+	@MockitoBean
+	UserRepository UserRepo;
+
 	@MockitoBean
 	TransactionRepository TransactionRepo;
 
@@ -55,6 +60,12 @@ public class TransactionServiceTest {
 		assertEquals("null", Transaction.getDescription());
 		assertEquals(9.99, Transaction.getAmount());
 		assertEquals("2025-04-10 15:00:00", Transaction.getDateTransaction());
+	}
+
+	@Test
+	public void testGetTransactionById() {
+		when(TransactionRepo.getById(any(int.class))).thenReturn(new Transaction());
+		assertTrue(Service.getTransactionById(1) instanceof Transaction);
 	}
 	
 	@Test
@@ -91,17 +102,43 @@ public class TransactionServiceTest {
 	
 	@Test
 	public void testAddTransactionNonValid() {
-        // CASE#1 - Transaction already exists
-        when(TransactionRepo.findBySender(any(int.class))).thenReturn(DummyList);
-        
-        assertThrows(TransactionAlreadyExistsException.class, () -> Service.addTransaction(DummyTransaction));
-
-		// CASE#2 - Generic Exception
+		// CASE#1 - Generic Exception
 		when(TransactionRepo.findBySender(any(int.class))).thenReturn(null);
 		when(TransactionRepo.addTransaction(any(int.class), any(int.class), any(String.class), any(double.class))).thenAnswer(invocation -> { 
 			throw new Exception(); 
 		});
 		
 		assertThrows(Exception.class, () -> Service.addTransaction(DummyTransaction));
+	}
+
+	@Test
+	public void testGetAllTransactionsDataOfUser() {
+		// Context: We are User #1, the other is User #2
+		List<Transaction> TransactionsListR = new ArrayList<Transaction>();
+			Transaction TR1 = new Transaction();
+			TR1.setSender(2);
+			TR1.setReceiver(1);
+			TransactionsListR.add(TR1);
+
+			when(TransactionRepo.findByReceiver(any(int.class))).thenReturn(TransactionsListR);
+
+		List<Transaction> TransactionsListS = new ArrayList<Transaction>();
+			Transaction TS1 = new Transaction();
+			TS1.setSender(1);
+			TS1.setReceiver(2);
+			TransactionsListS.add(TS1);
+
+			when(TransactionRepo.findBySender(any(int.class))).thenReturn(TransactionsListS);
+
+		User User1 = new User();
+		User1.setId(1);
+
+		User User2 = new User();
+		User2.setId(2);
+
+		when(UserRepo.getById(eq(1))).thenReturn(User1);
+		when(UserRepo.getById(eq(2))).thenReturn(User2);
+
+		assertTrue(Service.getAllTransactionsDataOfUser(1) instanceof List);
 	}
 }

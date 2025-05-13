@@ -12,7 +12,6 @@ import com.openclassrooms.PayMyBuddy.model.TransactionDataDashboardDTO;
 import com.openclassrooms.PayMyBuddy.model.User;
 import com.openclassrooms.PayMyBuddy.repository.TransactionRepository;
 import com.openclassrooms.PayMyBuddy.repository.UserRepository;
-import com.openclassrooms.PayMyBuddy.util.TransactionAlreadyExistsException;
 
 /**
  * <p>TransactionService is an entity that handles the work with Transactions</p>
@@ -34,6 +33,14 @@ public class TransactionService {
 	 */
 	public List<Transaction> getTransactions() {
 		return TransactionRepo.findAll();
+	}
+
+	/**
+	 * <p>Returns a Transaction Entity found using its Id</p>
+	 * @return a Transaction Entity
+	 */
+	public Transaction getTransactionById(int transactionId) {
+		return TransactionRepo.getById(transactionId);
 	}
 	
 	/**
@@ -80,7 +87,7 @@ public class TransactionService {
 	}
 
 	/**
-	 * <p>Returns a List of Transaction entities between two Users</p>
+	 * <p>Returns a List of all Transaction entities between two Users</p>
 	 * @return a List of Transaction entities
 	 */
 	public List<TransactionDataDashboardDTO> getAllTransactionsDataOfUser(int userId) {
@@ -93,17 +100,17 @@ public class TransactionService {
 		// Create DTO
 		for (Transaction transaction : TransactionsList) {
 			// We only pass one User Entity: the 'Contact' (either Sender or Receiver) the transaction is about
-			User ContactObj = UserRepo.findById(transaction.getReceiver());
+			User ContactObj = UserRepo.getById(transaction.getReceiver());
 
 			// Expresses whether the transaction impacts the User's balance positively or not (ie: Sending = negative, Receiver = positive)
-			boolean Benefic = false;
+			boolean Beneficial = false;
 
 			if (transaction.getSender() != userId) {
-				ContactObj = UserRepo.findById(transaction.getSender());
-				Benefic = true;
+				ContactObj = UserRepo.getById(transaction.getSender());
+				Beneficial = true;
 			}
 			
-			TransactionsDTOList.add(MapperDTO.toTransactionDataDashboardDTO(transaction, ContactObj, Benefic));
+			TransactionsDTOList.add(MapperDTO.toTransactionDataDashboardDTO(transaction, ContactObj, Beneficial));
 		}
 
 		return TransactionsDTOList;

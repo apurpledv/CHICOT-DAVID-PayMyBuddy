@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -18,15 +20,19 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.openclassrooms.PayMyBuddy.model.Connection;
 import com.openclassrooms.PayMyBuddy.model.ConnectionId;
+import com.openclassrooms.PayMyBuddy.model.User;
 import com.openclassrooms.PayMyBuddy.repository.ConnectionRepository;
+import com.openclassrooms.PayMyBuddy.repository.UserRepository;
 import com.openclassrooms.PayMyBuddy.service.ConnectionService;
-import com.openclassrooms.PayMyBuddy.util.ConnectionAlreadyExistsException;
 
 @SpringBootTest
 public class ConnectionServiceTest {
 	@Autowired
 	ConnectionService Service;
 	
+	@MockitoBean
+	UserRepository UserRepo;
+
 	@MockitoBean
 	ConnectionRepository ConnectionRepo;
 	
@@ -94,12 +100,7 @@ public class ConnectionServiceTest {
 		DummyConnection2Id.setUserTo(3);
 		DummyConnection2.setConnectionId(DummyConnection2Id);
 
-		// CASE#1 - Connection already exists (UserFrom/UserTo combo already exists (ie: if 3-2 exists, 2-3 is still possible)
-		when(ConnectionRepo.findByUserFromAndTo(any(int.class), any(int.class))).thenReturn(new Connection());
-		
-		assertThrows(ConnectionAlreadyExistsException.class, () -> Service.addConnection(DummyConnection2));
-		
-		// CASE#2 - Generic Exception
+		// CASE#1 - Generic Exception
 		when(ConnectionRepo.findByUserFromAndTo(any(int.class), any(int.class))).thenReturn(null);
 		when(ConnectionRepo.addConnection(any(int.class), any(int.class))).thenAnswer(invocation -> { 
 			throw new Exception(); 
@@ -112,5 +113,56 @@ public class ConnectionServiceTest {
 	public void testDeleteConnection() {
 		// Deleting the Connection
 		assertTrue(Service.deleteConnection(99, 99));
+	}
+
+	@Test
+	public void getUsersConnectedToUser() {
+		List<Connection> ConList = new ArrayList<Connection>();
+			Connection Con1 = new Connection();
+				ConnectionId Con1Id = new ConnectionId();
+				Con1Id.setUserFrom(1);
+				Con1Id.setUserTo(2);
+				Con1.setConnectionId(Con1Id);
+			ConList.add(Con1);
+
+			Connection Con2 = new Connection();
+				ConnectionId Con2Id = new ConnectionId();
+				Con2Id.setUserFrom(1);
+				Con2Id.setUserTo(9999);
+				Con2.setConnectionId(Con2Id);
+			ConList.add(Con2);
+
+		when(ConnectionRepo.findByUserFrom(any(int.class))).thenReturn(ConList);
+		when(UserRepo.getById(eq(2))).thenReturn(new User());
+		when(UserRepo.getById(eq(9999))).thenReturn(null);
+
+		assertTrue(Service.getUsersConnectedToUser(any(int.class)) instanceof List);
+	}
+
+	@Test
+	public void testCreateConnectionEntityFromEmail() {
+		User User1 = new User();
+		User1.setId(2);
+
+		when(UserRepo.findByEmail(anyString())).thenReturn(User1);
+
+		Connection CreatedCon = Service.createConnectionEntityFromEmail(1, "anyEmail");
+		assertTrue(CreatedCon instanceof Connection);
+		assertEquals(1, CreatedCon.getConnectionId().getUserFrom());
+		assertEquals(2, CreatedCon.getConnectionId().getUserTo());
+	}
+
+	@Test
+	public void testCreateConnectionEntityFromEmailNonValid() {
+		User User1 = new User();
+		User1.setId(2);
+
+		// CASE#1 - No User found using the provided Email
+		when(UserRepo.findByEmail(anyString())).thenReturn(null);
+		assertEquals(null, Service.createConnectionEntityFromEmail(1, "anyEmail"));
+
+		// CASE#2 - Same User From & To
+		when(UserRepo.findByEmail(anyString())).thenReturn(User1);
+		assertEquals(null, Service.createConnectionEntityFromEmail(2, "anyEmail"));
 	}
 }

@@ -26,7 +26,7 @@ public interface UserRepository extends CrudRepository<User, Integer> {
 	 * @param id The Unique identifier to search with
 	 * @return a User Entity
 	 */
-	public User findById(int id);
+	public User getById(int id);
 	
 	/**
 	 * <p>Returns a User entity found using their Username</p>
@@ -67,10 +67,10 @@ public interface UserRepository extends CrudRepository<User, Integer> {
 	 * @param email email of the User
 	 * @param password password of the User
 	 */
-	/*@Modifying
+	@Modifying
 	@Transactional
-	@Query(value = "UPDATE t_user SET user = ?1, email = ?2, password = ?3 WHERE CustomerID = 1;", nativeQuery = true)
-	public int updateUser(String user, String email, String password);*/
+	@Query(value = "UPDATE t_user SET user = ?1, email = ?2, password = ?3 WHERE id_user = ?4;", nativeQuery = true)
+	public int updateUser(String user, String email, String password, int userId);
 
 	/**
 	 * <p>Deletes a User entity identified with their Username</p>

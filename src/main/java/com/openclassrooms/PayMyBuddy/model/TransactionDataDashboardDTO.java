@@ -9,14 +9,14 @@ public class TransactionDataDashboardDTO {
     private String description;
     private double amount;
     private String dateTransaction;
-    private boolean benefic;
+    private boolean beneficial;
 
-    public TransactionDataDashboardDTO(int transactionId, String contactUser, String description, double amount, String dateTransaction, boolean benefic) {
+    public TransactionDataDashboardDTO(int transactionId, String contactUser, String description, double amount, String dateTransaction, boolean beneficial) {
         this.transactionId = transactionId;
         this.contactUser = contactUser;
         this.description = description;
         this.amount = amount;
         this.dateTransaction = dateTransaction;
-        this.benefic = benefic;
+        this.beneficial = beneficial;
     }
 }

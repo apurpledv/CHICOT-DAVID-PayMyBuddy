@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>PayMyBuddy - An error occured</title>
+        <link th:href="@{/css/styles.css}" rel="stylesheet">
+	</head>
+	<body>
+		<section>
+            <article class="loginFormWrapper">
+				<img th:src="@{/images/pmb_logo.png}">
+				<form class="loginForm" method="GET" action="#" th:action="@{/transfer}">
+					<p>Une erreur est survenue. Merci de réessayer ultérieurement.</p>
+					<button type="submit">Retour vers les Transactions</button>
+				</form>
+            </article>
+		</section>
+	</body>
+</html>

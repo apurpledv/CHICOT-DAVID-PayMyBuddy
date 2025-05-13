@@ -50,7 +50,7 @@ public class TransactionRepositoryTest {
 	
 	@Test
 	public void testGetTransactionById() {
-		assertTrue(TransactionRepo.findById(2) != null);
+		assertTrue(TransactionRepo.getById(2) instanceof Transaction);
 	}
 	
 	@Test

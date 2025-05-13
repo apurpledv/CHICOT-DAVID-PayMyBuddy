@@ -3,13 +3,11 @@ package com.openclassrooms.PayMyBuddy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,15 +15,13 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.openclassrooms.PayMyBuddy.controller.ConnectionController;
 import com.openclassrooms.PayMyBuddy.model.Connection;
+import com.openclassrooms.PayMyBuddy.model.User;
 import com.openclassrooms.PayMyBuddy.service.ConnectionService;
-import com.openclassrooms.PayMyBuddy.util.ConnectionAlreadyExistsException;
-import com.openclassrooms.PayMyBuddy.util.PMBUtil;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -38,114 +34,88 @@ public class ConnectionControllerTest {
 	
 	@MockitoBean
 	ConnectionService ConnectionService;
+
+	private HashMap<String, Object> SessionAttributes = new HashMap<String, Object>();
 	
 	@BeforeEach
 	void setupTests() {
-		when(ConnectionService.getConnections()).thenReturn(new ArrayList<Connection>());
+		SessionAttributes = new HashMap<String, Object>();
+		SessionAttributes.put("userId", 9999);
 	}
 	
 	@Test
-	public void testGetConnections() throws Exception {
-		this.mockMvc.perform(get("/connection"))
-			.andExpect(status().isOk())
-			.andExpect(content().contentType(MediaType.APPLICATION_JSON));
-
-		verify(ConnectionService, Mockito.times(1)).getConnections();
-	}
-	
-	@Test
-	public void testGetConnectionsNonValid() throws Exception {
-		// CASE#1 - Generic Exception Thrown
-		when(ConnectionService.getConnections()).thenAnswer(invocation -> { 
-			throw new Exception(); 
-		});
-		
-		this.mockMvc.perform(get("/connection"))
-			.andExpect(status().isInternalServerError());
-	}
-	
-	@Test
-	public void testAddConnection() throws Exception {
-		when(ConnectionService.addConnection(any(Connection.class))).thenReturn(true);
-		
-		String Body = "{\"connectionId\": {\"userFrom\": 3, \"userTo\": 1}, \"dateAdded\": \"2025-04-04 08:00:00\"}";		
-		this.mockMvc.perform(post("/connection")
-			.contentType(PMBUtil.APPLICATION_JSON_UTF8)
-			.content(Body)
+	public void testGetRelationsView() throws Exception {
+		this.mockMvc.perform(get("/relation")
+			.sessionAttrs(SessionAttributes)
 		).andExpect(status().isOk());
-
-		verify(ConnectionService, Mockito.times(1)).addConnection(any(Connection.class));
 	}
-	
-	@Test
-	public void testAddConnectionNonValid() throws Exception {
-		String Body = "{\"connectionId\": {\"userFrom\": 3, \"userTo\": 1}, \"dateAdded\": \"2025-04-04 08:00:00\"}";
 
-		// CASE#1 - Couldn't add
+	@Test
+	public void testGetRelationsViewNonValid() throws Exception {
+		// CASE#1 - No Session -> Redirection to Login
+		this.mockMvc.perform(get("/relation")
+		).andExpect(status().isFound());
+
+		verify(ConnectionService, Mockito.times(0)).getUsersConnectedToUser(any(int.class));
+
+		// CASE#2 - Generic Exception
+		when(ConnectionService.getUsersConnectedToUser(any(int.class))).thenAnswer(invocation -> { 
+			throw new Exception(); 
+		});
+
+		this.mockMvc.perform(get("/relation")
+			.sessionAttrs(SessionAttributes)
+		).andExpect(status().isOk());
+	}
+
+	@Test
+	public void testPostRelationsView() throws Exception {
+		User ValidEmail = new User();
+		ValidEmail.setEmail("jackcurtis@gmail.com");
+
+		when(ConnectionService.createConnectionEntityFromEmail(any(int.class), any(String.class))).thenReturn(new Connection());
+		when(ConnectionService.addConnection(any(Connection.class))).thenReturn(true);
+
+		this.mockMvc.perform(post("/createRelation")
+			.sessionAttrs(SessionAttributes)
+			.flashAttr("connectionForm", ValidEmail)
+		).andExpect(status().isFound());
+	}
+
+	@Test
+	public void testPostRelationsViewNonValid() throws Exception {
+		User ValidEmail = new User();
+		ValidEmail.setEmail("jackcurtis@gmail.com");
+
+		// CASE#1 - No Session -> Redirection to Login
+		this.mockMvc.perform(post("/createRelation")
+		).andExpect(status().isFound());
+
+		// CASE#2 - A problem occurred during the creation process of the Connection Entity
+		when(ConnectionService.createConnectionEntityFromEmail(any(int.class), any(String.class))).thenReturn(null);
+		
+		this.mockMvc.perform(post("/createRelation")
+			.sessionAttrs(SessionAttributes)
+			.flashAttr("connectionForm", ValidEmail)
+		).andExpect(status().isFound());
+
+		// CASE#3 - A problem occurred when trying to add the Connection Entity into the App (already created successfully)
+		when(ConnectionService.createConnectionEntityFromEmail(any(int.class), any(String.class))).thenReturn(new Connection());
 		when(ConnectionService.addConnection(any(Connection.class))).thenReturn(false);
-		
-		this.mockMvc.perform(post("/connection")
-			.contentType(PMBUtil.APPLICATION_JSON_UTF8)
-			.content(Body)
-		).andExpect(status().isInternalServerError());
-		
-		// CASE#2 - ConnectionAlreadyExistsException is thrown
-		when(ConnectionService.addConnection(any(Connection.class))).thenAnswer(invocation -> { 
-			throw new ConnectionAlreadyExistsException(); 
-		});
-		
-		this.mockMvc.perform(post("/connection")
-			.contentType(PMBUtil.APPLICATION_JSON_UTF8)
-			.content(Body)
-		).andExpect(status().isInternalServerError());
-		
-		// CASE#3 - Generic Exception Thrown
-		when(ConnectionService.addConnection(any(Connection.class))).thenAnswer(invocation -> { 
+
+		this.mockMvc.perform(post("/createRelation")
+			.sessionAttrs(SessionAttributes)
+			.flashAttr("connectionForm", ValidEmail)
+		).andExpect(status().isFound());
+
+		// CASE#4 - Generic Exception
+		when(ConnectionService.createConnectionEntityFromEmail(any(int.class), any(String.class))).thenAnswer(invocation -> { 
 			throw new Exception(); 
 		});
-		
-		this.mockMvc.perform(post("/connection")
-			.contentType(PMBUtil.APPLICATION_JSON_UTF8)
-			.content(Body)
-		).andExpect(status().isInternalServerError());
-	}
-	
-	@Test
-	public void testDeleteConnection() throws Exception {
-		when(ConnectionService.deleteConnection(any(int.class), any(int.class))).thenReturn(true);
-		
-		this.mockMvc.perform(delete("/connection?userFromId=99&userToId=999"))
-			.andExpect(status().isOk());
 
-		verify(ConnectionService, Mockito.times(1)).deleteConnection(any(int.class), any(int.class));
-	}
-	
-	@Test
-	public void testDeleteConnectionNonValid() throws Exception {
-		// CASE#1 - Couldn't delete
-		when(ConnectionService.deleteConnection(any(int.class), any(int.class))).thenReturn(false);
-
-		this.mockMvc.perform(delete("/connection?userFromId=1&userToId=2"))
-			.andExpect(status().isInternalServerError());
-		
-		// CASE#2 - Wrong arguments
-		when(ConnectionService.deleteConnection(any(int.class), any(int.class))).thenReturn(true);
-		
-		this.mockMvc.perform(delete("/connection?userFromId=1"))
-			.andExpect(status().isBadRequest());
-		
-		this.mockMvc.perform(delete("/connection?userToId=2"))
-			.andExpect(status().isBadRequest());
-		
-		this.mockMvc.perform(delete("/connection"))
-			.andExpect(status().isBadRequest());
-		
-		// CASE#3 - Generic Exception Thrown
-		when(ConnectionService.deleteConnection(any(int.class), any(int.class))).thenAnswer(invocation -> { 
-			throw new Exception(); 
-		});
-		
-		this.mockMvc.perform(delete("/connection?userFromId=1&userToId=2"))
-			.andExpect(status().isInternalServerError());
+		this.mockMvc.perform(post("/createRelation")
+			.sessionAttrs(SessionAttributes)
+			.flashAttr("connectionForm", ValidEmail)
+		).andExpect(status().isOk());
 	}
 }

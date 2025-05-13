@@ -23,98 +23,181 @@ public class UserController {
 	@Autowired
 	UserService UserService;
 
+	/**
+	 * <p>Will display the View to 'Sign Up' into the App (using a username, an email and a password)</p>
+	 * @param model the Model Entity used to fill in the template we return: userRegisterForm-a blank User Entity used to register the Client
+	 * @return the 'signup' template
+	 */
 	@GetMapping("/signup")
     public String signUpView(Model model) {
-		User userRegisterForm = new User();
+		try {
+			User userRegisterForm = new User();
 
-		model.addAttribute("userRegisterForm", userRegisterForm);
+			model.addAttribute("userRegisterForm", userRegisterForm);
 
-        return "signup";
+			log.info("[GET] '/signup' -> signup");
+			return "signup";
+		} catch (Exception e) {
+			log.info("[GET] '/signup' -> generic-error");
+			log.debug(e.toString());
+			return "generic-error";
+		}
     }
 
+	/**
+	 * <p>Will process the register request by attempting to add the User into the App</p>
+	 * @param user the 'userRegisterForm' parsed from the Model--used to register the User
+	 * @param model the Model Entity used to fill in the template we return if needed
+	 * @return the 'signup-success' template if everything went right; the 'signup-error' template if something went wrong during the registering process
+	 */
     @PostMapping("/signup/save")
     public String saveUserView(@ModelAttribute("userRegisterForm") User user, Model model) {
 		try {
-			boolean Result = UserService.addUser(user);
-			if (Result == false)
-				throw new Exception("Could not register user.");
+			if (UserService.addUser(user) == false)
+				throw new Exception("Could not add User");
 
+			log.info("[POST] '/signup/save' -> signup-success");
 			return "signup-success";
 		} catch (DataIntegrityViolationException e) {
 			model.addAttribute("userRegisterForm", new User());
 
-			log.error("/signup/save - 500");
-
+			log.info("[POST] '/signup/save' -> signup-error");
+			log.debug(e.toString());
 			return "signup-error";
 		} catch (Exception e) {
-			model.addAttribute("userRegisterForm", new User());
-
-			log.error("/signup/save - 500: ", e);
-			
-			return "signup-error";
+			log.info("[POST] '/signup/save' -> generic-error");
+			log.debug(e.toString());
+			return "generic-error";
 		}
     }
 
+	/**
+	 * <p>Will display the View to 'Log In' (using an email and a password)</p>
+	 * @param session the HttpSession Entity used to determine whether the Client is logged in or not
+	 * @param model the Model Entity used to fill in the template we return: userLoginForm-the form the Client fills to log in
+	 * @return the 'signin' template
+	 */
 	@GetMapping({"/", "/signin"})
 	public String signInView(HttpSession session, Model model) {
-		User userLoginForm = new User();
+		try {
+			User userLoginForm = new User();
 
-		model.addAttribute("userLoginForm", userLoginForm);
+			model.addAttribute("userLoginForm", userLoginForm);
 
-		return "signin";
+			log.info("[GET] '/signin' -> signup");
+			return "signin";
+		} catch (Exception e) {
+			log.info("[GET] '/signin' -> generic-error");
+			log.debug(e.toString());
+			return "generic-error";
+		}
 	}
 
+	/**
+	 * <p>Will process the log in request by verifying the info received (email and password)</p>
+	 * @param session the HttpSession Entity used to setup the session with the registered User'd Id--used throughout the App
+	 * @param user the 'userLoginForm' 
+	 * @param model the Model Entity used to fill in the template we return if needed
+	 * @return a redirection towards the 'Transactions' View
+	 */
 	@PostMapping("/signin")
     public String verifyUserView(HttpSession session, @ModelAttribute("userLoginForm") User user, Model model) {
-		if (UserService.verifyUser(user.getEmail(), user.getPassword()) == false) 
-			return "signin-error";
+		try {
+			if (UserService.verifyUser(user.getEmail(), user.getPassword()) == false) {
+				log.info("[POST] '/signin' -> signin-error");
+				return "signin-error";
+			}
 
-		User UserConnected = UserService.getUserByEmail(user.getEmail());
-		session.setAttribute("userId", UserConnected.getId());
-		
-        return "redirect:/transfer";
+			User UserConnected = UserService.getUserByEmail(user.getEmail());
+			session.setAttribute("userId", UserConnected.getId());
+			
+			log.info("[POST] '/signin' => transfer");
+			return "redirect:/transfer";
+		} catch (Exception e) {
+			log.info("[POST] '/signin' -> generic-error");
+			log.debug(e.toString());
+			return "generic-error";
+		}
     }
 
+	/**
+	 * <p>Will process the log out request by invalidating the HTTP Session</p>
+	 * @param session the HttpSession Entity to invalidate
+	 * @param model the Model Entity used to fill in the template we return if needed
+	 * @return a redirection towards the 'Log In' View
+	 */
 	@GetMapping("/signout")
 	public String signOutView(HttpSession session, Model model) {
-		session.invalidate();
+		try {
+			session.invalidate();
 
-		return "redirect:/signin";
+			log.info("[GET] '/signout' => signin");
+			return "redirect:/signin";
+		} catch (Exception e) {
+			log.info("[GET] '/signout' -> generic-error");
+			log.debug(e.toString());
+			return "generic-error";
+		}
 	}
 
+	/**
+	 * <p>Will display a View for the Client's 'Profile', which they will be able to use to modify some of their data (username, email and/or password)</p>
+	 * @param session the HttpSession Entity used to determine whether the Client is logged in or not
+	 * @param model the Model Entity used to fill in the template we return: userCurrentData-a User Entity filled with the Client's current data; userUpdateForm a blank User Entity whose attributes will be used to update the Client's User Entity
+	 * @return the 'profile' template; a redirection towards the 'Log In' View if the Client is not logged in
+	 */
 	@GetMapping("/profile")
 	public String profileView(HttpSession session, Model model) {
-		if (session.getAttribute("userId") == null)
+		if (session.getAttribute("userId") == null) {
+			log.info("[GET] '/profile' => signin");
 			return "redirect:/signin";
+		}
 
-		int sessionUserId = (int) session.getAttribute("userId");
-		
-		User userCurrentData = UserService.getUserById(sessionUserId);
-		User userUpdateForm = new User();
+		try {
+			int sessionUserId = (int) session.getAttribute("userId");
+			
+			User userCurrentData = UserService.getUserById(sessionUserId);
+			User userUpdateForm = new User();
 
-		model.addAttribute("userCurrentData", userCurrentData);
-		model.addAttribute("userUpdateForm", userUpdateForm);
+			model.addAttribute("userCurrentData", userCurrentData);
+			model.addAttribute("userUpdateForm", userUpdateForm);
 
-		return "profile";
+			log.info("[GET] '/profile' -> profile");
+			return "profile";
+		} catch (Exception e) {
+			log.info("[GET] '/profile' -> generic-error");
+			log.debug(e.toString());
+			return "generic-error";
+		}
 	}
 
+	/**
+	 * <p>Will process the updating profile request; will then redirect to the 'Profile' View</p>
+	 * @param session the HttpSession Entity used to determine whether the Client is logged in or not
+	 * @param user the 'userUpdateForm' parsed from the Model--used to see which attributes to update within the Client's User Entity
+	 * @param model the Model Entity used to fill in the template we return if needed
+	 * @return a redirection to the 'Profile' View; a redirection towards the 'Log In' View if the Client is not logged in
+	 */
 	@PostMapping("/updateProfile")
     public String updateProfile(HttpSession session, @ModelAttribute("userUpdateForm") User user, Model model) {
-		if (session.getAttribute("userId") == null)
+		if (session.getAttribute("userId") == null) {
+			log.info("[POST] '/updateProfile' => signin");
 			return "redirect:/signin";
+		}
 
-		int sessionUserId = (int) session.getAttribute("userId");
-		
 		try {
+			int sessionUserId = (int) session.getAttribute("userId");
+
 			user.setId(sessionUserId);
 			if (UserService.updateUser(user) == false)
 				throw new Exception("Could not modify User");
 
-			log.info("/signup/save - 200");
+			log.info("[POST] '/updateProfile' => profile");
 			return "redirect:/profile";
 		} catch (Exception e) {
-			log.error("/signup/save - 500: ", e);
-			return "redirect:/profile";
+			log.info("[POST] '/updateProfile' -> generic-error");
+			log.debug(e.toString());
+			return "generic-error";
 		}
     }
 }

@@ -21,6 +21,13 @@ public interface TransactionRepository extends CrudRepository<Transaction, Integ
 	 */
 	public List<Transaction> findAll();
 
+	/**
+	 * <p>Returns a Transaction Entity found using its id</p>
+     * @param transactionId id of the transaction
+	 * @return a Transaction Entity
+	 */
+    public Transaction getById(int transactionId);
+
     /**
 	 * <p>Returns a List of all Transaction entities found using the sender's id</p>
      * @param senderId id of the User who the transaction originates from

@@ -34,7 +34,7 @@
                             <td th:text="${transactionData.dateTransaction}"></td>
                             <td th:text="${transactionData.contactUser}"></td>
                             <td th:text="${transactionData.description}"></td>
-                            <td th:text="${transactionData.benefic} ? '+' + ${transactionData.amount} + '€' : '-' + ${transactionData.amount} + '€'"></td>
+                            <td th:text="${transactionData.beneficial} ? '+' + ${transactionData.amount} + '€' : '-' + ${transactionData.amount} + '€'"></td>
                         </tr>
                     </tbody>
                 </table>

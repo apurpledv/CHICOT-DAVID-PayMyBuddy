@@ -25,9 +25,6 @@ public class UserService {
 
 	@Autowired
 	Mapper MapperDTO;
-
-	/*@Autowired
-	private PasswordEncoder passwordEncoder;*/
 	
 	/**
 	 * <p>Returns a List of User entities registered in the App</p>
@@ -42,7 +39,7 @@ public class UserService {
 	 * @return a User entity
 	 */
 	public User getUserById(int userId) {
-		return UserRepo.findById(userId);
+		return UserRepo.getById(userId);
 	}
 	
 	/**
@@ -67,9 +64,6 @@ public class UserService {
 	 * @return true if everything went right
 	 */
 	public boolean addUser(User user) {
-		if (user.getId() != 0)
-			return false;
-
 		// Hashing the sensible data (password)
 		user.setPassword(createPassword(user.getPassword()));
 
@@ -83,7 +77,7 @@ public class UserService {
 	 * @return true if everything went right; false if the User doesn't exist
 	 */
 	public boolean updateUser(User newUserData) {
-		User User = UserRepo.findById(newUserData.getId());
+		User User = UserRepo.getById(newUserData.getId());
 
 		if (User == null)
 			return false;
@@ -97,23 +91,45 @@ public class UserService {
 		if (newUserData.getPassword() != null && !newUserData.getPassword().isEmpty())
 			User.setPassword(createPassword(newUserData.getPassword()));
 
-		UserRepo.save(User);
+		UserRepo.updateUser(User.getUser(), User.getEmail(), User.getPassword(), User.getId());
 		return true;
 	}
 	
+	/**
+	 * <p>Deletes an existing User</p>
+	 * @param username the username to look for
+	 * @return true if everything went right
+	 */
 	public boolean deleteUser(String username) {
 		UserRepo.deleteByUser(username);
 		return true;
 	}
 
+	/**
+	 * <p>Hashes a given string</p>
+	 * @param rawPassword the string to be hashed
+	 * @return the hashed string
+	 */
 	public String createPassword(String rawPassword) {
 		return Hashing.sha256().hashString(rawPassword, StandardCharsets.UTF_8).toString();
 	}
 
+	/**
+	 * <p>Compares two passwords: one hashed, and one not</p>
+	 * @param rawPassword the raw string to be compared (will automatically hash it)
+	 * @param hashedPassword the already hashed string
+	 * @return true if they are the same; false if not
+	 */
 	public boolean verifyPassword(String rawPassword, String hashedPassword) {
 		return hashedPassword.equals(createPassword(rawPassword));
 	}
 
+	/**
+	 * <p>Retrieves a User entity with their email, then verifies their password's authenticity</p>
+	 * @param email the email of the User to look for 
+	 * @param password raw password to verify
+	 * @return true if the User is authentified; false if the User doesn't exist OR doesn't have the right password
+	 */
 	public boolean verifyUser(String email, String password) {
 		User UserToVerify = getUserByEmail(email);
 		if (UserToVerify == null)
