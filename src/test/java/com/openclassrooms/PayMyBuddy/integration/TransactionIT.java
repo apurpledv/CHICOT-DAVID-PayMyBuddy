@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,10 @@ import com.openclassrooms.PayMyBuddy.service.TransactionService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Sql(scripts = "../scripts/clean.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@Sql(scripts = "../scripts/data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = "../scripts/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+@Sql(scripts = "../scripts/data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
 public class TransactionIT {
     @Autowired
 	private MockMvc mockMvc;
@@ -75,16 +80,12 @@ public class TransactionIT {
         // Check that it has been added
         List<Transaction> TransactionsList = Service.getTransactions();
 		boolean IsNewTransactionPresent = false;
-		int newTransactionId = -1;
 		for (Transaction transaction : TransactionsList) {
 			if (transaction.getSender() == 1 && transaction.getReceiver() == 2 && transaction.getAmount() == 150 && transaction.getDescription().equals("TESTTRANSACTION")) {
 				IsNewTransactionPresent = true;
-				newTransactionId = transaction.getId();
 				break;
 			}
 		}
-
-        Repository.deleteById(newTransactionId);
 
 		assertTrue(IsNewTransactionPresent);
     }

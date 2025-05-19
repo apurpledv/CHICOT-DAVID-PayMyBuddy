@@ -7,11 +7,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
 
 import com.openclassrooms.PayMyBuddy.model.User;
 import com.openclassrooms.PayMyBuddy.repository.UserRepository;
 
 @SpringBootTest
+@Sql(scripts = "scripts/clean.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@Sql(scripts = "scripts/data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = "scripts/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+@Sql(scripts = "scripts/data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
 class UserRepositoryTest {
 	@Autowired
 	UserRepository UserRepo;
@@ -73,9 +78,5 @@ class UserRepositoryTest {
 		DummyUser.setPassword("testUser77777");
 		UserRepo.updateUser(DummyUser.getUser(), DummyUser.getEmail(), DummyUser.getPassword(), DummyUserId);
 		assertEquals("testUser77777", UserRepo.findByUser("testUser").getPassword());
-		
-		// Clean Up
-		UserRepo.deleteByUser(DummyUser.getUser());
-		assertTrue(UserRepo.findByUser("testUser") == null);
 	}
 }

@@ -11,8 +11,11 @@
         <section>
             <article class="relationFormWrapper">
                 <p>Chercher une relation</p>
+                <th:block th:if="${formMessage}"> 
+                    <span class="formMessage" th:classappend="'formMsg' + ${formMessageType}" th:text="${formMessage}"></span>
+                </th:block>
                 <form class="relationForm" method="POST" action="#" th:action="@{/createRelation}" th:object="${connectionForm}">
-                    <input type="text" th:field="*{email}" placeholder="Saisir une adresse mail">
+                    <input type="text" th:field="*{email}" placeholder="Saisir une adresse mail" required>
                     <button type="submit">Ajouter</button>
                 </form>
             </article>

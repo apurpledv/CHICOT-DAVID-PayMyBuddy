@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.openclassrooms.PayMyBuddy.controller.ConnectionController;
@@ -24,6 +25,10 @@ import jakarta.transaction.Transactional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Sql(scripts = "../scripts/clean.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@Sql(scripts = "../scripts/data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = "../scripts/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+@Sql(scripts = "../scripts/data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
 public class ConnectionIT {
     @Autowired
 	private MockMvc mockMvc;
@@ -72,9 +77,6 @@ public class ConnectionIT {
 
         // Check that it has been added
         assertTrue(Service.getConnectionBetweenUsers(2, 3) instanceof Connection);
-
-        // Manual Clean Up
-        Repository.deleteByUserFromAndTo(2, 3);
     }
 
     @Test

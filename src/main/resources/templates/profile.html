@@ -10,6 +10,9 @@
         <aside th:replace="~{fragments/menus.html}"></aside>
         <section>
             <article class="profileFormWrapper">
+                <th:block th:if="${formMessage}"> 
+                    <span class="formMessage" th:classappend="'formMsg' + ${formMessageType}" th:text="${formMessage}"></span>
+                </th:block>
                 <form class="profileForm" method="POST" action="#" th:action="@{/updateProfile}" th:object="${userUpdateForm}">
                     <input type="text" th:field="*{user}" th:placeholder="${userCurrentData.user}">
                     <input type="email" th:field="*{email}" th:placeholder="${userCurrentData.email}">

@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.openclassrooms.PayMyBuddy.model.User;
 import com.openclassrooms.PayMyBuddy.service.UserService;
@@ -179,7 +180,7 @@ public class UserController {
 	 * @return a redirection to the 'Profile' View; a redirection towards the 'Log In' View if the Client is not logged in
 	 */
 	@PostMapping("/updateProfile")
-    public String updateProfile(HttpSession session, @ModelAttribute("userUpdateForm") User user, Model model) {
+    public String updateProfile(HttpSession session, @ModelAttribute("userUpdateForm") User user, Model model, RedirectAttributes redirectAttributes) {
 		if (session.getAttribute("userId") == null) {
 			log.info("[POST] '/updateProfile' => signin");
 			return "redirect:/signin";
@@ -191,6 +192,9 @@ public class UserController {
 			user.setId(sessionUserId);
 			if (UserService.updateUser(user) == false)
 				throw new Exception("Could not modify User");
+
+			redirectAttributes.addFlashAttribute("formMessage", "Vos informations ont été mises à jour.");
+			redirectAttributes.addFlashAttribute("formMessageType", "SUCCESS");
 
 			log.info("[POST] '/updateProfile' => profile");
 			return "redirect:/profile";

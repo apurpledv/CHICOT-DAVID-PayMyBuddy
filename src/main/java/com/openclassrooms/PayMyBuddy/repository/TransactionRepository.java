@@ -70,6 +70,16 @@ public interface TransactionRepository extends CrudRepository<Transaction, Integ
     @Query(value = "SELECT * FROM t_transaction WHERE sender = ?1 AND receiver = ?2 AND date_transaction = ?3 LIMIT 1", nativeQuery = true)
     public Transaction findExistingTransaction(int senderId, int receiverId, String date);
 
+	/**
+	 * <p>Returns every Transaction entity where the desired User is either the Sender or the Receiver</p>
+     * @param senderId id of the User the transaction stems from
+     * @param receiverId id of the User the transaction is directed to
+     * @param date date at which the Transaction was initiated
+	 * @return a Transaction entitiy
+	 */
+    @Query(value = "SELECT * FROM t_transaction WHERE sender = ?1 OR receiver = ?1", nativeQuery = true)
+    public List<Transaction> findAllTransactionsBelongingToUser(int senderOrReceiverId);
+
     /**
 	 * <p>Adds a Transaction entity</p>
 	 * @param senderId id of the sending User

@@ -9,9 +9,12 @@ import org.springframework.stereotype.Service;
 import com.openclassrooms.PayMyBuddy.model.Mapper;
 import com.openclassrooms.PayMyBuddy.model.Transaction;
 import com.openclassrooms.PayMyBuddy.model.TransactionDataDashboardDTO;
-import com.openclassrooms.PayMyBuddy.model.User;
+import com.openclassrooms.PayMyBuddy.model.ViewTransactionDataReceiver;
+import com.openclassrooms.PayMyBuddy.model.ViewTransactionDataSender;
 import com.openclassrooms.PayMyBuddy.repository.TransactionRepository;
 import com.openclassrooms.PayMyBuddy.repository.UserRepository;
+import com.openclassrooms.PayMyBuddy.repository.ViewTransactionDataRRepository;
+import com.openclassrooms.PayMyBuddy.repository.ViewTransactionDataSRepository;
 
 /**
  * <p>TransactionService is an entity that handles the work with Transactions</p>
@@ -23,6 +26,12 @@ public class TransactionService {
 
     @Autowired
 	TransactionRepository TransactionRepo;
+
+    @Autowired
+	ViewTransactionDataRRepository ViewTransactionRRepo;
+
+    @Autowired
+	ViewTransactionDataSRepository ViewTransactionSRepo;
 
 	@Autowired
 	Mapper MapperDTO;
@@ -67,6 +76,14 @@ public class TransactionService {
 		return TransactionRepo.findBySenderAndReceiver(senderId, receiverId);
 	}
 
+	/**
+	 * <p>Returns a List of Transaction entities belonging to a single user (either sender or receiver)</p>
+	 * @return a List of Transaction entities
+	 */
+	public List<Transaction> getTransactionsBelongingToUser(int senderOrreceiverId) {
+		return TransactionRepo.findAllTransactionsBelongingToUser(senderOrreceiverId);
+	}
+
     /**
 	 * <p>Returns an existing Transaction entity found using its sender Id, receiver Id, and date</p>
 	 * @return a Transaction entity
@@ -93,25 +110,14 @@ public class TransactionService {
 	public List<TransactionDataDashboardDTO> getAllTransactionsDataOfUser(int userId) {
 		List<TransactionDataDashboardDTO> TransactionsDTOList = new ArrayList<TransactionDataDashboardDTO>();
 
-		// Fill the list with transactions where we're the sender, and those where we're the receiver
-		List<Transaction> TransactionsList = getTransactionsBySender(userId);
-		TransactionsList.addAll(getTransactionsByReceiver(userId));
+		List<ViewTransactionDataReceiver> ListReceiver = ViewTransactionRRepo.getTransactions(userId);
+		List<ViewTransactionDataSender> ListSender = ViewTransactionSRepo.getTransactions(userId);
 
-		// Create DTO
-		for (Transaction transaction : TransactionsList) {
-			// We only pass one User Entity: the 'Contact' (either Sender or Receiver) the transaction is about
-			User ContactObj = UserRepo.getById(transaction.getReceiver());
+		for (ViewTransactionDataReceiver transaction : ListReceiver)
+			TransactionsDTOList.add(MapperDTO.toTransactionDataDashboardDTO(transaction));
 
-			// Expresses whether the transaction impacts the User's balance positively or not (ie: Sending = negative, Receiver = positive)
-			boolean Beneficial = false;
-
-			if (transaction.getSender() != userId) {
-				ContactObj = UserRepo.getById(transaction.getSender());
-				Beneficial = true;
-			}
-			
-			TransactionsDTOList.add(MapperDTO.toTransactionDataDashboardDTO(transaction, ContactObj, Beneficial));
-		}
+		for (ViewTransactionDataSender transaction : ListSender)
+			TransactionsDTOList.add(MapperDTO.toTransactionDataDashboardDTO(transaction));
 
 		return TransactionsDTOList;
 	}

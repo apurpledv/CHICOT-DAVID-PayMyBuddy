@@ -31,6 +31,39 @@ public class Mapper {
             transactionObj.getDescription(), 
             transactionObj.getAmount(), 
             transactionObj.getDateTransaction(),
-            beneficial);
+            beneficial
+        );
+    }
+
+    /**
+     * <p>Will return a DTO of a Transaction displaying various info to the user</p>
+     * @param transactionViewData a ViewTransactionDataReceiver Entity used to parse through Transactions of a Receiving User
+     * @return a DTO containing: [transaction_id, user_username, transaction_description, transaction_amount, transaction_date, true/false depending on whether the transaction beneficial to us]
+     */
+    public TransactionDataDashboardDTO toTransactionDataDashboardDTO(ViewTransactionDataReceiver transactionViewData) {
+        return new TransactionDataDashboardDTO(
+            transactionViewData.getTransactionId(), 
+            transactionViewData.getContactUser(), 
+            transactionViewData.getDescription(), 
+            transactionViewData.getAmount(), 
+            transactionViewData.getDateTransaction(),
+            transactionViewData.isBeneficial()
+        );
+    }
+
+    /**
+     * <p>Will return a DTO of a Transaction displaying various info to the user</p>
+     * @param transactionViewData a ViewTransactionDataSender Entity used to parse through Transactions of a Sending User
+     * @return a DTO containing: [transaction_id, user_username, transaction_description, transaction_amount, transaction_date, true/false depending on whether the transaction beneficial to us]
+     */
+    public TransactionDataDashboardDTO toTransactionDataDashboardDTO(ViewTransactionDataSender transactionViewData) {
+        return new TransactionDataDashboardDTO(
+            transactionViewData.getTransactionId(), 
+            transactionViewData.getContactUser(), 
+            transactionViewData.getDescription(), 
+            transactionViewData.getAmount(), 
+            transactionViewData.getDateTransaction(),
+            transactionViewData.isBeneficial()
+        );
     }
 }

@@ -1,16 +1,21 @@
+@font-face {
+    font-family: "Lexend Light";
+    src: url("../fonts/Lexend-Light.ttf");
+}
+
 * {
     margin: 0px;
     padding: 0px;
     font-size: 100%;
     box-sizing: border-box;
-    font-family: "Arial";
+    font-family: "Lexend Light", "Arial";
 }
 
 nav {
     position: relative;
     float: left;
     border-right: 1px solid black;
-    height: 100dvh;
+    height: 100vh;
 }
 
 nav img {
@@ -79,6 +84,24 @@ form {
     justify-content: space-between;
 }
 
+.formMessage {
+    margin: 10px auto;
+    padding: 10px 20px 10px 20px;
+    background-color: beige;
+    border: 1px solid lightgrey;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+.formMsgERROR {
+    background-color: rgb(255, 160, 160);
+}
+
+.formMsgSUCCESS {
+    background-color: rgb(230, 255, 237);
+}
+
 .transactionsForm { 
     padding: 20px;
     width: 100%;
@@ -111,6 +134,8 @@ select {
     display: flex;
     border-radius: 10px;
     border: 1px solid lightgrey;
+    max-height: 550px;
+    overflow-y: scroll;
 }
 
 .transactionsDashboardWrapper table {

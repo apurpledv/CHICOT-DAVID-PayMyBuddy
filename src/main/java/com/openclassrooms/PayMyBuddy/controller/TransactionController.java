@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.openclassrooms.PayMyBuddy.model.Transaction;
 import com.openclassrooms.PayMyBuddy.model.TransactionDataDashboardDTO;
@@ -71,7 +72,7 @@ public class TransactionController {
 	 * @return a redirection towards the 'Transactions' View; a redirection towards the 'Log In' View if the Client is not logged in
 	 */
 	@PostMapping("/initiateTransaction")
-	public String transactionProcessView(HttpSession session, @ModelAttribute("transactionForm") Transaction transaction, Model model) {
+	public String transactionProcessView(HttpSession session, @ModelAttribute("transactionForm") Transaction transaction, Model model, RedirectAttributes redirectAttributes) {
 		if (session.getAttribute("userId") == null) {
 			log.info("[POST] '/transfer' => signin");
 			return "redirect:/signin";
@@ -81,6 +82,9 @@ public class TransactionController {
 			int sessionUserId = (int) session.getAttribute("userId");
 		
 			if (transaction.getReceiver() == -1) {
+				redirectAttributes.addFlashAttribute("formMessage", "Veuillez sélectionner une Relation.");
+				redirectAttributes.addFlashAttribute("formMessageType", "INFO");
+				
 				log.info("[POST] '/transfer' => transfer");
 				return "redirect:/transfer";
 			}
@@ -89,6 +93,9 @@ public class TransactionController {
 			
 			if (TransactionService.addTransaction(transaction) == false)
 				throw new Exception("Could not add Transaction");
+
+			redirectAttributes.addFlashAttribute("formMessage", "Votre Transaction a bien été prise en charge.");
+			redirectAttributes.addFlashAttribute("formMessageType", "SUCCESS");
 
 			log.info("[POST] '/transfer' => transfer");
 			return "redirect:/transfer";

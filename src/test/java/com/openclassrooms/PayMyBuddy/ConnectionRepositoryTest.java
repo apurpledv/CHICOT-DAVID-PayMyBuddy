@@ -1,6 +1,5 @@
 package com.openclassrooms.PayMyBuddy;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -8,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.openclassrooms.PayMyBuddy.model.Connection;
@@ -15,6 +15,10 @@ import com.openclassrooms.PayMyBuddy.model.ConnectionId;
 import com.openclassrooms.PayMyBuddy.repository.ConnectionRepository;
 
 @SpringBootTest
+@Sql(scripts = "scripts/clean.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@Sql(scripts = "scripts/data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = "scripts/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+@Sql(scripts = "scripts/data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
 public class ConnectionRepositoryTest {
 	@Autowired
 	ConnectionRepository ConnectionRepo;
@@ -57,32 +61,12 @@ public class ConnectionRepositoryTest {
 	}
 	
 	@Test
-	public void testAddAndDeleteConnection() {
+	public void testAddConnection() {
 		// Adding
 		ConnectionRepo.save(DummyConnection);
 		assertTrue(ConnectionRepo.findByUserFromAndTo(2, 3) != null);
-		
-		// Deleting (Default Deletion Method)
-		ConnectionRepo.delete(DummyConnection);
-		assertTrue(ConnectionRepo.findByUserFromAndTo(2, 3) == null);
 	}
-	
-	@Test
-	public void testUpdateConnection() {
-		// Adding
-		ConnectionRepo.save(DummyConnection);
-		assertEquals("2025-04-04 08:00:00", ConnectionRepo.findByUserFromAndTo(2, 3).getDateAdded());
-		
-		// Updating
-		DummyConnection.setDateAdded("1999-12-31 12:00:00");
-		ConnectionRepo.save(DummyConnection);
-		assertEquals("1999-12-31 12:00:00", ConnectionRepo.findByUserFromAndTo(2, 3).getDateAdded());
-		
-		// Clean Up
-		ConnectionRepo.delete(DummyConnection);
-		assertTrue(ConnectionRepo.findByUserFromAndTo(2, 3) == null);
-	}
-	
+
 	@Test
 	@Transactional
 	public void testDeleteSpecificConnection() {

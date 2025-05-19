@@ -11,13 +11,16 @@
         <section>
             <article class="transactionsFormWrapper">
                 <p>Effectuer une Transaction</p>
+                <th:block th:if="${formMessage}"> 
+                    <span class="formMessage" th:classappend="'formMsg' + ${formMessageType}" th:text="${formMessage}"></span>
+                </th:block>
                 <form class="transactionsForm" method="POST" action="#" th:action="@{/initiateTransaction}" th:object="${transactionForm}">
                     <select th:field="*{receiver}">
                         <option selected th:value="${-1}" hidden>Sélectionner une relation</option>
                         <option th:each="connection : ${connectionsList}" th:value="${connection.id}" th:text="${connection.user}"></option>
                     </select>
                     <input type="text" th:field="*{description}" placeholder="Description">
-                    <input type="number" th:field="*{amount}" th:value="${5.0}" min="5">
+                    <input type="number" th:field="*{amount}" th:value="${5.0}" value="5" min="5">
                     <button type="submit">Payer</button>
                 </form>
             </article>

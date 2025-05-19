@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -18,9 +17,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.openclassrooms.PayMyBuddy.model.Transaction;
-import com.openclassrooms.PayMyBuddy.model.User;
+import com.openclassrooms.PayMyBuddy.model.ViewTransactionDataReceiver;
+import com.openclassrooms.PayMyBuddy.model.ViewTransactionDataSender;
 import com.openclassrooms.PayMyBuddy.repository.TransactionRepository;
 import com.openclassrooms.PayMyBuddy.repository.UserRepository;
+import com.openclassrooms.PayMyBuddy.repository.ViewTransactionDataRRepository;
+import com.openclassrooms.PayMyBuddy.repository.ViewTransactionDataSRepository;
 import com.openclassrooms.PayMyBuddy.service.TransactionService;
 
 @SpringBootTest
@@ -33,6 +35,12 @@ public class TransactionServiceTest {
 
 	@MockitoBean
 	TransactionRepository TransactionRepo;
+
+	@MockitoBean
+	ViewTransactionDataRRepository ViewRRepo;
+
+	@MockitoBean
+	ViewTransactionDataSRepository ViewSRepo;
 
     private List<Transaction> DummyList = null;
     private Transaction DummyTransaction = null;
@@ -86,6 +94,12 @@ public class TransactionServiceTest {
 		assertTrue(Service.getTransactionsBySenderAndReceiver(1, 2) instanceof List);
 	}
 
+	@Test
+	public void testGetTransactionsBelongingToUser() {
+		when(TransactionRepo.findAllTransactionsBelongingToUser(any(int.class))).thenReturn(new ArrayList<Transaction>());
+		assertTrue(Service.getTransactionsBelongingToUser(1) instanceof List);
+	}
+
     @Test
 	public void testGetExistingTransaction() {
 		when(TransactionRepo.findExistingTransaction(any(int.class), any(int.class), any(String.class))).thenReturn(new Transaction());
@@ -114,30 +128,16 @@ public class TransactionServiceTest {
 	@Test
 	public void testGetAllTransactionsDataOfUser() {
 		// Context: We are User #1, the other is User #2
-		List<Transaction> TransactionsListR = new ArrayList<Transaction>();
-			Transaction TR1 = new Transaction();
-			TR1.setSender(2);
-			TR1.setReceiver(1);
-			TransactionsListR.add(TR1);
+		List<ViewTransactionDataReceiver> TransactionsRList = new ArrayList<ViewTransactionDataReceiver>();
+		ViewTransactionDataReceiver TR1 = new ViewTransactionDataReceiver();
+		TransactionsRList.add(TR1);
 
-			when(TransactionRepo.findByReceiver(any(int.class))).thenReturn(TransactionsListR);
+		List<ViewTransactionDataSender> TransactionsSList = new ArrayList<ViewTransactionDataSender>();
+		ViewTransactionDataSender TS1 = new ViewTransactionDataSender();
+		TransactionsSList.add(TS1);
 
-		List<Transaction> TransactionsListS = new ArrayList<Transaction>();
-			Transaction TS1 = new Transaction();
-			TS1.setSender(1);
-			TS1.setReceiver(2);
-			TransactionsListS.add(TS1);
-
-			when(TransactionRepo.findBySender(any(int.class))).thenReturn(TransactionsListS);
-
-		User User1 = new User();
-		User1.setId(1);
-
-		User User2 = new User();
-		User2.setId(2);
-
-		when(UserRepo.getById(eq(1))).thenReturn(User1);
-		when(UserRepo.getById(eq(2))).thenReturn(User2);
+		when(ViewRRepo.getTransactions(any(int.class))).thenReturn(TransactionsRList);
+		when(ViewSRepo.getTransactions(any(int.class))).thenReturn(TransactionsSList);
 
 		assertTrue(Service.getAllTransactionsDataOfUser(1) instanceof List);
 	}
