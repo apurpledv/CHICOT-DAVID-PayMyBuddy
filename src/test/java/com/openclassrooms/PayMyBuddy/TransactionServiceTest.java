@@ -108,15 +108,18 @@ public class TransactionServiceTest {
 	
 	@Test
 	public void testAddTransaction() throws Exception {
-		Transaction DummyTransaction2 = new Transaction();
-		
 		// Adding the Transaction
-		assertTrue(Service.addTransaction(DummyTransaction2));
+		assertTrue(Service.addTransaction(DummyTransaction));
 	}
 	
 	@Test
 	public void testAddTransactionNonValid() {
-		// CASE#1 - Generic Exception
+		// CASE#1 - Non Valid Amount (< minimum amount (by default: 5))
+		DummyTransaction.setAmount(0);
+		assertFalse(Service.addTransaction(DummyTransaction));
+
+		// CASE#2 - Generic Exception
+		DummyTransaction.setAmount(9.99);
 		when(TransactionRepo.findBySender(any(int.class))).thenReturn(null);
 		when(TransactionRepo.addTransaction(any(int.class), any(int.class), any(String.class), any(double.class))).thenAnswer(invocation -> { 
 			throw new Exception(); 

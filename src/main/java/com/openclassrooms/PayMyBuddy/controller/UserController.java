@@ -193,6 +193,11 @@ public class UserController {
 			if (UserService.updateUser(user) == false)
 				throw new Exception("Could not modify User");
 
+			if (user.getPassword() != null && !user.getPassword().isEmpty())  {
+				log.info("[POST] '/updateProfile' => signin");
+				return "redirect:/signin";
+			}
+
 			redirectAttributes.addFlashAttribute("formMessage", "Vos informations ont été mises à jour.");
 			redirectAttributes.addFlashAttribute("formMessageType", "SUCCESS");
 

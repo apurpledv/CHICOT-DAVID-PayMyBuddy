@@ -69,8 +69,6 @@ public class UserIT {
 		).andExpect(status().isOk());
 
         assertTrue(Repository.findByUser("testUser") instanceof User);
-
-        Repository.deleteByUser("testUser");
     }
 
     @Test

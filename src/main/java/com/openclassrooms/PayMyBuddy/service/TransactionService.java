@@ -15,6 +15,7 @@ import com.openclassrooms.PayMyBuddy.repository.TransactionRepository;
 import com.openclassrooms.PayMyBuddy.repository.UserRepository;
 import com.openclassrooms.PayMyBuddy.repository.ViewTransactionDataRRepository;
 import com.openclassrooms.PayMyBuddy.repository.ViewTransactionDataSRepository;
+import com.openclassrooms.PayMyBuddy.util.PMBUtil;
 
 /**
  * <p>TransactionService is an entity that handles the work with Transactions</p>
@@ -99,6 +100,9 @@ public class TransactionService {
      * @throws TransactionAlreadyExistsException if a Transaction already exists (same Sender, Receiver, Amount and Date)
 	 */
 	public boolean addTransaction(Transaction transaction) {
+		if (transaction.getAmount() < PMBUtil.MinimumAmountTransaction)
+			return false;
+
         TransactionRepo.addTransaction(transaction.getSender(), transaction.getReceiver(), transaction.getDescription(), transaction.getAmount());
 		return true;
 	}

@@ -13,10 +13,11 @@
                 <th:block th:if="${formMessage}"> 
                     <span class="formMessage" th:classappend="'formMsg' + ${formMessageType}" th:text="${formMessage}"></span>
                 </th:block>
+                <p>Sélectionnez un champs à modifier.</p>
                 <form class="profileForm" method="POST" action="#" th:action="@{/updateProfile}" th:object="${userUpdateForm}">
-                    <input type="text" th:field="*{user}" th:placeholder="${userCurrentData.user}">
-                    <input type="email" th:field="*{email}" th:placeholder="${userCurrentData.email}">
-                    <input type="password" th:field="*{password}" placeholder="********">
+                    <input aria-label="Type to change your Username" type="text" th:field="*{user}" th:placeholder="${userCurrentData.user}">
+                    <input aria-label="Type to change your Email Address" type="email" th:field="*{email}" th:placeholder="${userCurrentData.email}">
+                    <input aria-label="Type to change your Password" type="password" th:field="*{password}" placeholder="********">
                     <button type="submit">Modifier</button>
                 </form>
             </article>

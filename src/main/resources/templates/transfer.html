@@ -19,8 +19,8 @@
                         <option selected th:value="${-1}" hidden>Sélectionner une relation</option>
                         <option th:each="connection : ${connectionsList}" th:value="${connection.id}" th:text="${connection.user}"></option>
                     </select>
-                    <input type="text" th:field="*{description}" placeholder="Description">
-                    <input type="number" th:field="*{amount}" th:value="${5.0}" value="5" min="5">
+                    <input aria-label="Add a Description to your Transaction" type="text" th:field="*{description}" placeholder="Description">
+                    <input aria-label="Type in the desired amount of money to give" type="number" th:field="*{amount}" th:value="${5.0}" value="5" min="5">
                     <button type="submit">Payer</button>
                 </form>
             </article>
